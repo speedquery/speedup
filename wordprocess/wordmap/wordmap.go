@@ -23,5 +23,6 @@ func (wd *WordMap) AddWord(word string) uint {
 		value = wd.id
 		wd.wordMap[word] = value
 	}
+
 	return value
 }
