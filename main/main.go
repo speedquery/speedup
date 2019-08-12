@@ -21,31 +21,26 @@ func main() {
 	doc.AddField("nome", "thiago luiz rodrigues")
 	doc.AddField("idade", "32")
 
-	doc = new(document.Document).CreateDocument(2)
-	doc.AddField("nome", "thiago luiz rodrigues")
-	doc.AddField("idade", 32)
-
-	json := doc.ToJson()
-	println(json)
-
-	mp := doc.ToMap(`{"_key":1,"idade":32,"nome":"thiago luiz rodrigues"}`)
-	fmt.Println(mp)
-
-	texto := "Thiago ama tatiane, Tatiane ama thiago. Tatiane e thiago ama isabella"
-
+	//criar uma função chamada indexDocument
 	stopwords := new(stp.StopWords).InitStopWords(stp.PORTUGUESES)
 	wordmap := new(wd.WordMap).InitWordMap()
 
-	words := strings.Split(texto, " ")
+	for _, value := range doc.GetMap() {
 
-	for _, word := range words {
+		formatedValue := fmt.Sprintf("%v", value)
 
-		newWord := stringprocess.ProcessWord(word)
+		words := strings.Split(formatedValue, " ")
 
-		if !stopwords.IsStopWord(newWord) {
-			wordmap.AddWord(newWord)
-			//println(id)
+		for _, word := range words {
+
+			newWord := stringprocess.ProcessWord(word)
+
+			if !stopwords.IsStopWord(newWord) {
+				wordmap.AddWord(newWord)
+				println(word)
+			}
 		}
+
 	}
 
 }

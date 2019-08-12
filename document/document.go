@@ -36,3 +36,7 @@ func (doc *Document) ToMap(jsonString string) map[string]interface{} {
 
 	return doc.fields
 }
+
+func (doc *Document) GetMap() map[string]interface{} {
+	return doc.fields
+}
