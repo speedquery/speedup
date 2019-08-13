@@ -30,7 +30,6 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 		for _, word := range words {
 
 			newWord := stringprocess.ProcessWord(word)
-
 			idx.fileSystem.GetWordMap().AddWord(newWord)
 
 			//idx.wordmap.AddWord(newWord)
