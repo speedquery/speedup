@@ -1,4 +1,4 @@
-package wordmap
+package filesystem
 
 //WordMap struct
 type WordMap struct {
