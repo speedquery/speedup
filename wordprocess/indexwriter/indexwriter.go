@@ -1,6 +1,7 @@
 package indexwriter
 
 import (
+	"encoding/json"
 	"fmt"
 	doc "speedup/document"
 	fs "speedup/filesystem"
@@ -29,12 +30,16 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 		formatedValue := fmt.Sprintf("%v", value)
 		words := strings.Split(formatedValue, " ")
 
+		wordGroup := make([]uint, 0)
+
 		for _, word := range words {
 
 			newWord := stringprocess.ProcessWord(word)
 
 			idword := idx.fileSystem.GetWordMap().AddWord(newWord)
 			idx.fileSystem.GetAttributeWord().AddWordsOfAttribute(idAttribute, idword)
+
+			wordGroup = append(wordGroup, idword)
 
 			//idx.wordmap.AddWord(newWord)
 
@@ -45,9 +50,16 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 			//}
 		}
 
+		bolB, _ := json.Marshal(wordGroup)
+		fmt.Println(string(bolB))
+		idx.fileSystem.GetWordGroupMap().AddAWordGroup(wordGroup)
+
 	}
 
-	println(idx.fileSystem.GetAttributeWord().ToJson())
+	//println(idx.fileSystem.GetAttributeWord().ToJson())
+	println(idx.fileSystem.GetWordGroupMap().ToJson())
+
+	
 
 	document = nil
 }

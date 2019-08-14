@@ -13,8 +13,20 @@ func isMn(r rune) bool {
 
 func main() {
 
+	/**
+	s := make([][]uint, 0)
+	s = append(s, make([]uint,2))
+
+	bolB, _ := json.Marshal(s)
+	fmt.Println(string(bolB))
+
+	if true {
+		return
+	}
+	**/
+
 	doc := new(document.Document).CreateDocument(1)
-	doc.AddField("nome", "thiago. luiz çao rodrigues")
+	doc.AddField("nome", "thiago. luiz çao rodrigues, thiago")
 	doc.AddField("idade", 25)
 	doc.AddField("email", "bobboyms@gmail.com")
 

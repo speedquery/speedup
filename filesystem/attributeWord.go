@@ -30,7 +30,6 @@ func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord uint) []uint 
 		idwords = make([]uint, 5)
 		idwords = append(idwords, idWord)
 		attw.attributeWord[idAttribute] = idwords
-		println("Nao existe slice")
 	}
 
 	existSlice := false
