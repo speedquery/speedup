@@ -22,7 +22,9 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 
 	for attribute, value := range document.GetMap() {
 
-		idx.fileSystem.GetAttributeMap().AddAttribute(attribute)
+		idAttribute := idx.fileSystem.GetAttributeMap().AddAttribute(attribute)
+
+		//println(idatt)
 
 		formatedValue := fmt.Sprintf("%v", value)
 		words := strings.Split(formatedValue, " ")
@@ -30,11 +32,13 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 		for _, word := range words {
 
 			newWord := stringprocess.ProcessWord(word)
-			idx.fileSystem.GetWordMap().AddWord(newWord)
+
+			idword := idx.fileSystem.GetWordMap().AddWord(newWord)
+			idx.fileSystem.GetAttributeWord().AddWordsOfAttribute(idAttribute, idword)
 
 			//idx.wordmap.AddWord(newWord)
 
-			println(newWord)
+			//println(newWord)
 
 			//if !stopwords.IsStopWord(newWord) {
 			//
@@ -42,6 +46,8 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 		}
 
 	}
+
+	println(idx.fileSystem.GetAttributeWord().ToJson())
 
 	document = nil
 }

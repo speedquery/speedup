@@ -5,13 +5,15 @@ FileSystem tem a função de fazer o gerenciamento de todos os indices
 criados
 */
 type FileSystem struct {
-	wordmap      *WordMap
-	attributeMap *AttributeMap
+	wordmap       *WordMap
+	attributeMap  *AttributeMap
+	attributeWord *AttributeWord
 }
 
 func (fs *FileSystem) CreateFileSystem() *FileSystem {
 	fs.wordmap = new(WordMap).InitWordMap()
 	fs.attributeMap = new(AttributeMap).IniAttributeMap()
+	fs.attributeWord = new(AttributeWord).InitAttributeWord()
 	return fs
 }
 
@@ -21,4 +23,8 @@ func (fs *FileSystem) GetWordMap() *WordMap {
 
 func (fs *FileSystem) GetAttributeMap() *AttributeMap {
 	return fs.attributeMap
+}
+
+func (fs *FileSystem) GetAttributeWord() *AttributeWord {
+	return fs.attributeWord
 }
