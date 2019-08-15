@@ -15,11 +15,8 @@ func (attw *AttributeWord) InitAttributeWord() *AttributeWord {
 }
 
 func (attw *AttributeWord) GetWordsOfAttribute(idAttribute uint) []uint {
-
 	idwords := attw.attributeWord[idAttribute]
-
 	return idwords
-
 }
 
 func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord uint) []uint {
@@ -27,10 +24,9 @@ func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord uint) []uint 
 	idwords, exist := attw.attributeWord[idAttribute]
 
 	if !exist {
-		idwords = make([]uint, 5)
+		idwords = make([]uint, 0)
 		idwords = append(idwords, idWord)
 		attw.attributeWord[idAttribute] = idwords
-		println("Nao existe slice")
 	}
 
 	existSlice := false

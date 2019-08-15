@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"reflect"
 	"speedup/document"
 	fs "speedup/filesystem"
 	idx "speedup/wordprocess/indexwriter"
@@ -25,5 +27,15 @@ func main() {
 	IndexWriter.IndexDocument(doc)
 
 	//criar uma função chamada indexDocument
+	doc = new(document.Document).CreateDocument(1)
+	doc.AddField("nome", "jose taliba. luiz çao rodrigues")
+	doc.AddField("idade", 54)
+	doc.AddField("email", "bobboyms@gmail.com")
+
+	IndexWriter.IndexDocument(doc)
+
+	a := make([]int, 0)
+	b := make([]int, 0)
+	fmt.Println(reflect.DeepEqual(a, b))
 
 }

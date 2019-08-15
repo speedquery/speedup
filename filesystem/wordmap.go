@@ -1,5 +1,10 @@
 package filesystem
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 //WordMap struct
 type WordMap struct {
 	wordMap map[string]uint
@@ -25,4 +30,17 @@ func (wd *WordMap) AddWord(word string) uint {
 	}
 
 	return value
+}
+
+func (wd *WordMap) ToJson() string {
+
+	data, err := json.Marshal(wd.wordMap)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+
+	return string(data)
+
 }

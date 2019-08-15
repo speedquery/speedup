@@ -1,5 +1,10 @@
 package filesystem
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 type AttributeMap struct {
 	attributeMap map[string]uint
 	id           uint
@@ -24,4 +29,17 @@ func (att *AttributeMap) AddAttribute(attribute string) uint {
 	}
 
 	return value
+}
+
+func (att *AttributeMap) ToJson() string {
+
+	data, err := json.Marshal(att.attributeMap)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+
+	return string(data)
+
 }

@@ -47,6 +47,7 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 
 	}
 
+	println(idx.fileSystem.GetWordMap().ToJson())
 	println(idx.fileSystem.GetAttributeWord().ToJson())
 
 	document = nil
