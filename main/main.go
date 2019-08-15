@@ -27,6 +27,8 @@ func main() {
 
 	doc := new(document.Document).CreateDocument(1)
 	doc.AddField("nome", "thiago. luiz çao rodrigues, thiago")
+	doc.AddField("taliba", "thiago. luiz çao rodrigues, thiago")
+	doc.AddField("t2", "thiago. luiz çao rodrigues, thiago")
 	doc.AddField("idade", 25)
 	doc.AddField("email", "bobboyms@gmail.com")
 

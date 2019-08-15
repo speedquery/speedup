@@ -2,6 +2,7 @@ package filesystem
 
 import (
 	"encoding/json"
+	"reflect"
 )
 
 type WordGroupMap struct {
@@ -22,11 +23,29 @@ func (wd *WordGroupMap) IniWordGroupMap() *WordGroupMap {
 //AddWord Add new word in map
 func (wd *WordGroupMap) AddAWordGroup(wordgroup []uint) uint {
 
-	wd.id += 1
+	exist := false
 
-	strut := make([][]uint, 0)
-	strut = append(strut, wordgroup)
-	wd.wordGroupMap[wd.id] = strut
+	for _, value := range wd.wordGroupMap {
+
+		for _, vl := range value {
+			//println("compararou:", fmt.Sprintf("%v", wordgroup), fmt.Sprintf("%v", vl))
+			//println("igual?", reflect.DeepEqual(vl, wordgroup))
+
+			if reflect.DeepEqual(vl, wordgroup) {
+				exist = true
+				break
+			}
+
+		}
+
+	}
+
+	if !exist {
+		wd.id += 1
+		strut := make([][]uint, 0)
+		strut = append(strut, wordgroup)
+		wd.wordGroupMap[wd.id] = strut
+	}
 
 	return 0
 
