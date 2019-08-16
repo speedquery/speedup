@@ -5,25 +5,26 @@ import (
 )
 
 type AttributeMap struct {
-	attributeMap map[string]uint
+	attributeMap map[string]*uint
 	id           uint
 }
 
 //NewWordMap create new wordmap
 func (att *AttributeMap) IniAttributeMap() *AttributeMap {
-	att.attributeMap = make(map[string]uint)
+	att.attributeMap = make(map[string]*uint)
 	att.id = 0
 	return att
 }
 
 //AddWord Add new word in map
-func (att *AttributeMap) AddAttribute(attribute string) uint {
+func (att *AttributeMap) AddAttribute(attribute string) *uint {
 
 	value, exist := att.attributeMap[attribute]
 
 	if !exist {
 		att.id++
-		value = att.id
+		newvalue := att.id
+		value = &newvalue
 		att.attributeMap[attribute] = value
 	}
 

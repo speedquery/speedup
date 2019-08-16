@@ -40,3 +40,7 @@ func (doc *Document) ToMap(jsonString string) map[string]interface{} {
 func (doc *Document) GetMap() map[string]interface{} {
 	return doc.fields
 }
+
+func (doc *Document) GetID() uint {
+	return doc.id
+}

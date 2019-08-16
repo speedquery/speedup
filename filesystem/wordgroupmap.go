@@ -6,13 +6,13 @@ import (
 )
 
 type WordGroupMap struct {
-	wordGroupMap map[uint][][]uint
+	wordGroupMap map[uint][][]*uint
 	id           uint
 }
 
 //NewWordMap create new wordmap
 func (wd *WordGroupMap) IniWordGroupMap() *WordGroupMap {
-	wd.wordGroupMap = make(map[uint][][]uint)
+	wd.wordGroupMap = make(map[uint][][]*uint)
 	wd.id = 0
 	return wd
 	//att.attributeMap = make(map[string]uint)
@@ -21,11 +21,13 @@ func (wd *WordGroupMap) IniWordGroupMap() *WordGroupMap {
 }
 
 //AddWord Add new word in map
-func (wd *WordGroupMap) AddAWordGroup(wordgroup []uint) uint {
+func (wd *WordGroupMap) AddAWordGroup(wordgroup []*uint) *uint {
 
 	exist := false
 
-	for _, value := range wd.wordGroupMap {
+	var idgroup *uint
+
+	for id, value := range wd.wordGroupMap {
 
 		for _, vl := range value {
 			//println("compararou:", fmt.Sprintf("%v", wordgroup), fmt.Sprintf("%v", vl))
@@ -33,6 +35,7 @@ func (wd *WordGroupMap) AddAWordGroup(wordgroup []uint) uint {
 
 			if reflect.DeepEqual(vl, wordgroup) {
 				exist = true
+				idgroup = &id
 				break
 			}
 
@@ -41,13 +44,15 @@ func (wd *WordGroupMap) AddAWordGroup(wordgroup []uint) uint {
 	}
 
 	if !exist {
-		wd.id += 1
-		strut := make([][]uint, 0)
+		wd.id++
+		newvalue := wd.id
+		idgroup = &newvalue
+		strut := make([][]*uint, 0)
 		strut = append(strut, wordgroup)
 		wd.wordGroupMap[wd.id] = strut
 	}
 
-	return 0
+	return idgroup
 
 	/**
 	if !exist {
@@ -69,5 +74,4 @@ func (wd *WordGroupMap) ToJson() string {
 	}
 
 	return string(data)
-
 }

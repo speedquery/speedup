@@ -6,28 +6,27 @@ import (
 )
 
 type AttributeWord struct {
-	attributeWord map[uint][]uint
+	attributeWord map[*uint][]*uint
 }
 
 func (attw *AttributeWord) InitAttributeWord() *AttributeWord {
-	attw.attributeWord = make(map[uint][]uint)
+	attw.attributeWord = make(map[*uint][]*uint)
 	return attw
 }
 
-func (attw *AttributeWord) GetWordsOfAttribute(idAttribute uint) []uint {
+func (attw *AttributeWord) GetWordsOfAttribute(idAttribute *uint) []*uint {
 
 	idwords := attw.attributeWord[idAttribute]
-
 	return idwords
 
 }
 
-func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord uint) []uint {
+func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) []*uint {
 
 	idwords, exist := attw.attributeWord[idAttribute]
 
 	if !exist {
-		idwords = make([]uint, 5)
+		idwords = make([]*uint, 0)
 		idwords = append(idwords, idWord)
 		attw.attributeWord[idAttribute] = idwords
 	}

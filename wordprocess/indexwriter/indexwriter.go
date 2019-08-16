@@ -1,7 +1,6 @@
 package indexwriter
 
 import (
-	"encoding/json"
 	"fmt"
 	doc "speedup/document"
 	fs "speedup/filesystem"
@@ -25,39 +24,38 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 
 		idAttribute := idx.fileSystem.GetAttributeMap().AddAttribute(attribute)
 
-		//println(idatt)
+		//println(*idAttribute)
 
 		formatedValue := fmt.Sprintf("%v", value)
 		words := strings.Split(formatedValue, " ")
 
-		wordGroup := make([]uint, 0)
+		wordGroup := make([]*uint, 0)
 
 		for _, word := range words {
 
 			newWord := stringprocess.ProcessWord(word)
-
 			idword := idx.fileSystem.GetWordMap().AddWord(newWord)
 			idx.fileSystem.GetAttributeWord().AddWordsOfAttribute(idAttribute, idword)
 
 			wordGroup = append(wordGroup, idword)
 
-			//idx.wordmap.AddWord(newWord)
-
-			//println(newWord)
-
-			//if !stopwords.IsStopWord(newWord) {
-			//
-			//}
 		}
 
-		bolB, _ := json.Marshal(wordGroup)
-		fmt.Println(string(bolB))
-		idx.fileSystem.GetWordGroupMap().AddAWordGroup(wordGroup)
+		//bolB, _ := json.Marshal(wordGroup)
+		//fmt.Println(string(bolB))
+		idWordGroup := idx.fileSystem.GetWordGroupMap().AddAWordGroup(wordGroup)
+		idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
+
+		idDocument := document.GetID()
+		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(&idDocument, idWordGroup)
 
 	}
 
 	//println(idx.fileSystem.GetAttributeWord().ToJson())
-	println(idx.fileSystem.GetWordGroupMap().ToJson())
+	println("ATT MAP", idx.fileSystem.GetAttributeMap().ToJson())
+	println("WORD MAP", idx.fileSystem.GetWordMap().ToJson())
 
-	document = nil
+	println(idx.fileSystem.GetWordGroupMap().ToJson())
+	println(idx.fileSystem.GetGroupWordDocument().ToJson())
+
 }
