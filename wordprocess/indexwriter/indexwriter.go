@@ -24,8 +24,6 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 
 		idAttribute := idx.fileSystem.GetAttributeMap().AddAttribute(attribute)
 
-		//println(*idAttribute)
-
 		formatedValue := fmt.Sprintf("%v", value)
 		words := strings.Split(formatedValue, " ")
 
@@ -47,15 +45,19 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 		idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
 
 		idDocument := document.GetID()
-		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(&idDocument, idWordGroup)
+		//println("DOCUMENTO GRUPO", idDocument, *idWordGroup)
+		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, &idDocument)
 
 	}
 
-	//println(idx.fileSystem.GetAttributeWord().ToJson())
+	println(idx.fileSystem.GetAttributeWord().ToJson())
 	println("ATT MAP", idx.fileSystem.GetAttributeMap().ToJson())
 	println("WORD MAP", idx.fileSystem.GetWordMap().ToJson())
+	println("ATT WORD", idx.fileSystem.GetAttributeWord().ToJson())
+	println("WORD GROUP MAP", idx.fileSystem.GetWordGroupMap().ToJson())
+	println("DOCUMENT GROUP", idx.fileSystem.GetGroupWordDocument().ToJson())
 
-	println(idx.fileSystem.GetWordGroupMap().ToJson())
-	println(idx.fileSystem.GetGroupWordDocument().ToJson())
+	//println(idx.fileSystem.GetWordGroupMap().ToJson())
+	//println(idx.fileSystem.GetGroupWordDocument().ToJson())
 
 }

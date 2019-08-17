@@ -50,7 +50,13 @@ func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) []*uin
 
 func (attw *AttributeWord) ToJson() string {
 
-	data, err := json.Marshal(attw.attributeWord)
+	temp := make(map[uint][]*uint)
+
+	for key, value := range attw.attributeWord {
+		temp[*key] = value
+	}
+
+	data, err := json.Marshal(temp)
 
 	if err != nil {
 		fmt.Println(err.Error())

@@ -21,30 +21,32 @@ func (gw *GroupWordDocument) GetIdGroupWord(idDocument *uint) []*uint {
 
 }
 
-func (gw *GroupWordDocument) AddGroupWordDocument(idDocument, idGroup *uint) []*uint {
+func (gw *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) []*uint {
 
-	idGroups, exist := gw.groupWordDocument[idDocument]
+	idDocuments, exist := gw.groupWordDocument[idGroup]
 
 	if !exist {
-		idGroups = make([]*uint, 0)
-		idGroups = append(idGroups, idGroup)
-		gw.groupWordDocument[idDocument] = idGroups
+		idDocuments = make([]*uint, 0)
+		idDocuments = append(idDocuments, idDocument)
+		gw.groupWordDocument[idGroup] = idDocuments
 	}
 
+	println(*idGroup, *idDocument, exist)
+
 	existSlice := false
-	for _, localID := range idGroups {
-		if localID == idGroup {
+	for _, localID := range idDocuments {
+		if localID == idDocument {
 			existSlice = true
 			break
 		}
 	}
 
 	if !existSlice {
-		idGroups = append(idGroups, idGroup)
-		gw.groupWordDocument[idDocument] = idGroups
+		idDocuments = append(idDocuments, idDocument)
+		gw.groupWordDocument[idGroup] = idDocuments
 	}
 
-	return idGroups
+	return idDocuments
 
 }
 
