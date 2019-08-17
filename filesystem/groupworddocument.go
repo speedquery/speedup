@@ -31,7 +31,7 @@ func (gw *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) []*
 		gw.groupWordDocument[idGroup] = idDocuments
 	}
 
-	println(*idGroup, *idDocument, exist)
+	//println(*idGroup, *idDocument, exist)
 
 	existSlice := false
 	for _, localID := range idDocuments {

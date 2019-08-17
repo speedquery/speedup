@@ -10,7 +10,7 @@ type Document struct {
 func (doc *Document) CreateDocument(id uint) *Document {
 	doc.id = id
 	doc.fields = make(map[string]interface{})
-	doc.fields["_key"] = id
+	//doc.fields["_key"] = id
 	return doc
 }
 

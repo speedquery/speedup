@@ -20,9 +20,13 @@ func (idx *IndexWriter) CreateIndex(fileSystem *fs.FileSystem) *IndexWriter {
 
 func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 
+	println("Documento", document.GetID())
+
 	for attribute, value := range document.GetMap() {
 
 		idAttribute := idx.fileSystem.GetAttributeMap().AddAttribute(attribute)
+
+		//println(*idAttribute, attribute)
 
 		formatedValue := fmt.Sprintf("%v", value)
 		words := strings.Split(formatedValue, " ")
@@ -40,13 +44,14 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 		}
 
 		//bolB, _ := json.Marshal(wordGroup)
-		//fmt.Println(string(bolB))
 		idWordGroup := idx.fileSystem.GetWordGroupMap().AddAWordGroup(wordGroup)
+		//fmt.Println(*idWordGroup, string(bolB))
 		idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
 
 		idDocument := document.GetID()
 		//println("DOCUMENTO GRUPO", idDocument, *idWordGroup)
 		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, &idDocument)
+		//println(*idWordGroup, idDocument)
 
 	}
 

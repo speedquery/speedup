@@ -6,13 +6,13 @@ import (
 )
 
 type WordGroupMap struct {
-	wordGroupMap map[uint][][]*uint
+	wordGroupMap map[*uint][][]*uint
 	id           uint
 }
 
 //NewWordMap create new wordmap
 func (wd *WordGroupMap) IniWordGroupMap() *WordGroupMap {
-	wd.wordGroupMap = make(map[uint][][]*uint)
+	wd.wordGroupMap = make(map[*uint][][]*uint)
 	wd.id = 0
 	return wd
 	//att.attributeMap = make(map[string]uint)
@@ -35,7 +35,7 @@ func (wd *WordGroupMap) AddAWordGroup(wordgroup []*uint) *uint {
 
 			if reflect.DeepEqual(vl, wordgroup) {
 				exist = true
-				idgroup = &id
+				idgroup = id
 				break
 			}
 
@@ -49,7 +49,7 @@ func (wd *WordGroupMap) AddAWordGroup(wordgroup []*uint) *uint {
 		idgroup = &newvalue
 		strut := make([][]*uint, 0)
 		strut = append(strut, wordgroup)
-		wd.wordGroupMap[wd.id] = strut
+		wd.wordGroupMap[idgroup] = strut
 	}
 
 	return idgroup
@@ -67,7 +67,13 @@ func (wd *WordGroupMap) AddAWordGroup(wordgroup []*uint) *uint {
 
 func (wd *WordGroupMap) ToJson() string {
 
-	data, err := json.Marshal(wd.wordGroupMap)
+	temp := make(map[uint][][]*uint)
+
+	for key, value := range wd.wordGroupMap {
+		temp[*key] = value
+	}
+
+	data, err := json.Marshal(temp)
 
 	if err != nil {
 		panic(err)
