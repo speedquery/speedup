@@ -32,7 +32,7 @@ func (doc *Document) ToJson() string {
 
 func (doc *Document) ToMap(jsonString string) map[string]interface{} {
 
-	json.Unmarshal([]byte(jsonString), doc.fields)
+	json.Unmarshal([]byte(jsonString), &doc.fields)
 
 	return doc.fields
 }

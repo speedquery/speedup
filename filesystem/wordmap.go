@@ -1,15 +1,20 @@
 package filesystem
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"sync"
+)
 
 //WordMap struct
 type WordMap struct {
-	wordMap map[string]*uint
-	id      uint
+	wordMap      map[string]*uint
+	id           uint
+	someMapMutex sync.RWMutex
 }
 
 //NewWordMap create new wordmap
 func (wd *WordMap) InitWordMap() *WordMap {
+	wd.someMapMutex = sync.RWMutex{}
 	wd.wordMap = make(map[string]*uint)
 	wd.id = 0
 	return wd
@@ -18,9 +23,9 @@ func (wd *WordMap) InitWordMap() *WordMap {
 //AddWord Add new word in map
 func (wd *WordMap) AddWord(word string) *uint {
 
-	value, exist := wd.wordMap[word]
+	wd.someMapMutex.Lock()
 
-	//var value *uint
+	value, exist := wd.wordMap[word]
 
 	if !exist {
 		wd.id++
@@ -28,6 +33,8 @@ func (wd *WordMap) AddWord(word string) *uint {
 		value = &newvalue
 		wd.wordMap[word] = value
 	}
+
+	wd.someMapMutex.Unlock()
 
 	return value
 }

@@ -3,15 +3,19 @@ package filesystem
 import (
 	"encoding/json"
 	"reflect"
+	"sync"
 )
 
 type WordGroupMap struct {
 	wordGroupMap map[*uint][][]*uint
 	id           uint
+	someMapMutex sync.RWMutex
 }
 
 //NewWordMap create new wordmap
 func (wd *WordGroupMap) IniWordGroupMap() *WordGroupMap {
+
+	wd.someMapMutex = sync.RWMutex{}
 	wd.wordGroupMap = make(map[*uint][][]*uint)
 	wd.id = 0
 	return wd
@@ -22,6 +26,8 @@ func (wd *WordGroupMap) IniWordGroupMap() *WordGroupMap {
 
 //AddWord Add new word in map
 func (wd *WordGroupMap) AddAWordGroup(wordgroup []*uint) *uint {
+
+	wd.someMapMutex.Lock()
 
 	exist := false
 
@@ -40,7 +46,6 @@ func (wd *WordGroupMap) AddAWordGroup(wordgroup []*uint) *uint {
 			}
 
 		}
-
 	}
 
 	if !exist {
@@ -51,6 +56,8 @@ func (wd *WordGroupMap) AddAWordGroup(wordgroup []*uint) *uint {
 		strut = append(strut, wordgroup)
 		wd.wordGroupMap[idgroup] = strut
 	}
+
+	wd.someMapMutex.Unlock()
 
 	return idgroup
 

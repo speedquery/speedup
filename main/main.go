@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bufio"
+	"log"
+	"os"
 	"speedup/document"
 	fs "speedup/filesystem"
 	idx "speedup/wordprocess/indexwriter"
@@ -17,24 +20,27 @@ func main() {
 	fileSystem := new(fs.FileSystem).CreateFileSystem()
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	doc := new(document.Document).CreateDocument(1)
-	doc.AddField("nome", "thiago luiz")
-	doc.AddField("idade", 25)
-	//doc.AddField("email", "bobboyms@gmail.com")
+	file, err := os.Open("speedup/teste.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
 
-	IndexWriter.IndexDocument(doc)
+	scanner := bufio.NewScanner(file)
 
-	println("==================================")
+	var id uint
+	id = 1
+	for scanner.Scan() { // internally, it advances token based on sperator
+		//fmt.Println(scanner.Text())  // token in unicode-char
+		//fmt.Println(scanner.Bytes()) // token in bytes
 
-	doc2 := new(document.Document).CreateDocument(2)
-	doc2.AddField("nome", "thiago luiz")
-	doc2.AddField("idade", 30)
+		doc := new(document.Document).CreateDocument(id)
 
-	//doc2.AddField("endereco", "thiago. luiz çao rodrigues, thiago taliba")
-	//doc2.AddField("cidade", "rolim de moura")
+		flat, _ := fs.FlattenString(scanner.Text(), "", fs.DotStyle)
+		doc.ToMap(flat)
+		//println(doc.ToJson())
+		IndexWriter.IndexDocument(doc)
 
-	IndexWriter.IndexDocument(doc2)
-
-	//criar uma função chamada indexDocument
+	}
 
 }

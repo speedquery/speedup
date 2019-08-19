@@ -3,13 +3,17 @@ package filesystem
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 )
 
 type GroupWordDocument struct {
 	groupWordDocument map[*uint][]*uint
+	someMapMutex      sync.RWMutex
 }
 
 func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
+
+	gw.someMapMutex = sync.RWMutex{}
 	gw.groupWordDocument = make(map[*uint][]*uint)
 	return gw
 }
@@ -22,6 +26,8 @@ func (gw *GroupWordDocument) GetIdGroupWord(idDocument *uint) []*uint {
 }
 
 func (gw *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) []*uint {
+
+	gw.someMapMutex.Lock()
 
 	idDocuments, exist := gw.groupWordDocument[idGroup]
 
@@ -45,6 +51,8 @@ func (gw *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) []*
 		idDocuments = append(idDocuments, idDocument)
 		gw.groupWordDocument[idGroup] = idDocuments
 	}
+
+	gw.someMapMutex.Unlock()
 
 	return idDocuments
 

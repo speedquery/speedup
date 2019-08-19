@@ -20,7 +20,7 @@ func (idx *IndexWriter) CreateIndex(fileSystem *fs.FileSystem) *IndexWriter {
 
 func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 
-	println("Documento", document.GetID())
+	//println("Documento", document.GetID())
 
 	for attribute, value := range document.GetMap() {
 
@@ -55,12 +55,12 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 
 	}
 
-	println(idx.fileSystem.GetAttributeWord().ToJson())
-	println("ATT MAP", idx.fileSystem.GetAttributeMap().ToJson())
-	println("WORD MAP", idx.fileSystem.GetWordMap().ToJson())
-	println("ATT WORD", idx.fileSystem.GetAttributeWord().ToJson())
-	println("WORD GROUP MAP", idx.fileSystem.GetWordGroupMap().ToJson())
-	println("DOCUMENT GROUP", idx.fileSystem.GetGroupWordDocument().ToJson())
+	//println(idx.fileSystem.GetAttributeWord().ToJson())
+	//println("ATT MAP", idx.fileSystem.GetAttributeMap().ToJson())
+	//println("WORD MAP", idx.fileSystem.GetWordMap().ToJson())
+	//println("ATT WORD", idx.fileSystem.GetAttributeWord().ToJson())
+	//println("WORD GROUP MAP", idx.fileSystem.GetWordGroupMap().ToJson())
+	//println("DOCUMENT GROUP", idx.fileSystem.GetGroupWordDocument().ToJson())
 
 	//println(idx.fileSystem.GetWordGroupMap().ToJson())
 	//println(idx.fileSystem.GetGroupWordDocument().ToJson())

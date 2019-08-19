@@ -3,13 +3,16 @@ package filesystem
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 )
 
 type AttributeWord struct {
 	attributeWord map[*uint][]*uint
+	someMapMutex  sync.RWMutex
 }
 
 func (attw *AttributeWord) InitAttributeWord() *AttributeWord {
+	attw.someMapMutex = sync.RWMutex{}
 	attw.attributeWord = make(map[*uint][]*uint)
 	return attw
 }
@@ -22,6 +25,8 @@ func (attw *AttributeWord) GetWordsOfAttribute(idAttribute *uint) []*uint {
 }
 
 func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) []*uint {
+
+	attw.someMapMutex.Lock()
 
 	idwords, exist := attw.attributeWord[idAttribute]
 
@@ -43,6 +48,8 @@ func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) []*uin
 		idwords = append(idwords, idWord)
 		attw.attributeWord[idAttribute] = idwords
 	}
+
+	attw.someMapMutex.Unlock()
 
 	return idwords
 
