@@ -29,11 +29,11 @@ func main() {
 	scanner := bufio.NewScanner(file)
 
 	var id uint
-	id = 1
+	id = 0
 	for scanner.Scan() { // internally, it advances token based on sperator
 		//fmt.Println(scanner.Text())  // token in unicode-char
 		//fmt.Println(scanner.Bytes()) // token in bytes
-
+		id++
 		doc := new(document.Document).CreateDocument(id)
 
 		flat, _ := fs.FlattenString(scanner.Text(), "", fs.DotStyle)

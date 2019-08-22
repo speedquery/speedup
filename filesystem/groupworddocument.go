@@ -1,58 +1,64 @@
 package filesystem
 
 import (
+	"container/list"
 	"encoding/json"
 	"fmt"
 	"sync"
 )
 
 type GroupWordDocument struct {
-	groupWordDocument map[*uint][]*uint
+	groupWordDocument map[*uint]*list.List
 	someMapMutex      sync.RWMutex
 }
 
 func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
 
 	gw.someMapMutex = sync.RWMutex{}
-	gw.groupWordDocument = make(map[*uint][]*uint)
+	gw.groupWordDocument = make(map[*uint]*list.List)
 	return gw
 }
 
-func (gw *GroupWordDocument) GetIdGroupWord(idDocument *uint) []*uint {
+func (gw *GroupWordDocument) GetIdGroupWord(idDocument *uint) *list.List {
 
 	idGroups := gw.groupWordDocument[idDocument]
 	return idGroups
 
 }
 
-func (gw *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) []*uint {
+func (gw *GroupWordDocument) AddGroupWordDocument(idGroup *uint, idDocument uint) *list.List {
 
-	gw.someMapMutex.Lock()
+	//gw.someMapMutex.Lock()
 
 	idDocuments, exist := gw.groupWordDocument[idGroup]
 
-	if !exist {
-		idDocuments = make([]*uint, 0)
-		idDocuments = append(idDocuments, idDocument)
+	if !exist || idDocuments == nil {
+		idDocuments = list.New()
+		idDocuments.PushBack(idDocument)
 		gw.groupWordDocument[idGroup] = idDocuments
-	}
+	} else {
 
-	//println(*idGroup, *idDocument, exist)
+		//println(*idGroup, *idDocument, exist)
 
-	existSlice := false
-	for _, localID := range idDocuments {
-		if localID == idDocument {
-			existSlice = true
-			break
+		existSlice := false
+
+		for e := idDocuments.Front(); e != nil; e = e.Next() {
+
+			localID := e.Value.(uint)
+
+			if localID == idDocument {
+				existSlice = true
+				break
+			}
 		}
-	}
 
-	if !existSlice {
-		idDocuments = append(idDocuments, idDocument)
-		gw.groupWordDocument[idGroup] = idDocuments
-	}
+		if !existSlice {
+			idDocuments.PushBack(idDocument)
+			//gw.groupWordDocument[idGroup] = idDocuments
+		}
 
-	gw.someMapMutex.Unlock()
+	}
+	//gw.someMapMutex.Unlock()
 
 	return idDocuments
 
@@ -60,13 +66,21 @@ func (gw *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) []*
 
 func (gw *GroupWordDocument) ToJson() string {
 
-	tempMap := make(map[uint][]*uint)
+	temp := make(map[uint][]*uint)
 
-	for key, value := range gw.groupWordDocument {
-		tempMap[*key] = value
+	for key, values := range gw.groupWordDocument {
+
+		words := make([]*uint, 0)
+
+		for e := values.Front(); e != nil; e = e.Next() {
+			vl := e.Value.(uint)
+			words = append(words, &vl)
+		}
+
+		temp[*key] = words
 	}
 
-	data, err := json.Marshal(tempMap)
+	data, err := json.Marshal(temp)
 
 	if err != nil {
 		fmt.Println(err.Error())

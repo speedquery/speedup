@@ -50,7 +50,7 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 
 		idDocument := document.GetID()
 		//println("DOCUMENTO GRUPO", idDocument, *idWordGroup)
-		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, &idDocument)
+		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, idDocument)
 		//println(*idWordGroup, idDocument)
 
 	}

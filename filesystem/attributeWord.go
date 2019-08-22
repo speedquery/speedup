@@ -1,55 +1,62 @@
 package filesystem
 
 import (
+	"container/list"
 	"encoding/json"
 	"fmt"
 	"sync"
 )
 
 type AttributeWord struct {
-	attributeWord map[*uint][]*uint
+	attributeWord map[*uint]*list.List
 	someMapMutex  sync.RWMutex
 }
 
 func (attw *AttributeWord) InitAttributeWord() *AttributeWord {
 	attw.someMapMutex = sync.RWMutex{}
-	attw.attributeWord = make(map[*uint][]*uint)
+	attw.attributeWord = make(map[*uint]*list.List)
 	return attw
 }
 
+/**
 func (attw *AttributeWord) GetWordsOfAttribute(idAttribute *uint) []*uint {
 
 	idwords := attw.attributeWord[idAttribute]
 	return idwords
 
 }
+**/
 
-func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) []*uint {
+func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) *list.List {
 
-	attw.someMapMutex.Lock()
-
+	//attw.someMapMutex.Lock()
 	idwords, exist := attw.attributeWord[idAttribute]
 
-	if !exist {
-		idwords = make([]*uint, 0)
-		idwords = append(idwords, idWord)
-		attw.attributeWord[idAttribute] = idwords
-	}
+	//println("Nil?", idwords == nil)
 
-	existSlice := false
-	for _, localIDword := range idwords {
-		if localIDword == idWord {
-			existSlice = true
-			break
+	if !exist || idwords == nil {
+		idwords = list.New()
+		idwords.PushBack(idWord)
+		attw.attributeWord[idAttribute] = idwords
+	} else {
+		existSlice := false
+		for e := idwords.Front(); e != nil; e = e.Next() {
+
+			localIDword := e.Value.(*uint)
+
+			if localIDword == idWord {
+				//println("Existe slice?", *idWord)
+				existSlice = true
+				break
+			}
 		}
-	}
 
-	if !existSlice {
-		idwords = append(idwords, idWord)
-		attw.attributeWord[idAttribute] = idwords
-	}
+		if !existSlice {
+			idwords.PushBack(idWord)
+			attw.attributeWord[idAttribute] = idwords
+		}
 
-	attw.someMapMutex.Unlock()
+	}
 
 	return idwords
 
@@ -59,8 +66,15 @@ func (attw *AttributeWord) ToJson() string {
 
 	temp := make(map[uint][]*uint)
 
-	for key, value := range attw.attributeWord {
-		temp[*key] = value
+	for key, idwords := range attw.attributeWord {
+
+		words := make([]*uint, 0)
+
+		for e := idwords.Front(); e != nil; e = e.Next() {
+			words = append(words, e.Value.(*uint))
+		}
+
+		temp[*key] = words
 	}
 
 	data, err := json.Marshal(temp)
