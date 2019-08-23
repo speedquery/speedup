@@ -2,15 +2,19 @@ package filesystem
 
 import (
 	"encoding/json"
+	"sync"
 )
 
 type AttributeMap struct {
+	someMapMutex sync.RWMutex
 	attributeMap map[string]*uint
 	id           uint
 }
 
 //NewWordMap create new wordmap
 func (att *AttributeMap) IniAttributeMap() *AttributeMap {
+	att.someMapMutex = sync.RWMutex{}
+
 	att.attributeMap = make(map[string]*uint)
 	att.id = 0
 	return att
@@ -18,6 +22,8 @@ func (att *AttributeMap) IniAttributeMap() *AttributeMap {
 
 //AddWord Add new word in map
 func (att *AttributeMap) AddAttribute(attribute string) *uint {
+
+	att.someMapMutex.Lock()
 
 	value, exist := att.attributeMap[attribute]
 
@@ -27,6 +33,8 @@ func (att *AttributeMap) AddAttribute(attribute string) *uint {
 		value = &newvalue
 		att.attributeMap[attribute] = value
 	}
+
+	att.someMapMutex.Unlock()
 
 	return value
 }

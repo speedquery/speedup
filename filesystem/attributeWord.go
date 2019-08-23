@@ -29,7 +29,7 @@ func (attw *AttributeWord) GetWordsOfAttribute(idAttribute *uint) []*uint {
 
 func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) *list.List {
 
-	//attw.someMapMutex.Lock()
+	attw.someMapMutex.Lock()
 	idwords, exist := attw.attributeWord[idAttribute]
 
 	//println("Nil?", idwords == nil)
@@ -57,6 +57,8 @@ func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) *list.
 		}
 
 	}
+
+	attw.someMapMutex.Unlock()
 
 	return idwords
 

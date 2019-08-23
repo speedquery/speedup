@@ -7,6 +7,8 @@ import (
 	"speedup/document"
 	fs "speedup/filesystem"
 	idx "speedup/wordprocess/indexwriter"
+	"sync"
+	"time"
 	"unicode"
 )
 
@@ -15,6 +17,8 @@ func isMn(r rune) bool {
 }
 
 func main() {
+
+	start := time.Now()
 
 	//cria o sistema de arquivos que vai gerenciar os indices
 	fileSystem := new(fs.FileSystem).CreateFileSystem()
@@ -30,6 +34,9 @@ func main() {
 
 	var id uint
 	id = 0
+
+	var wg sync.WaitGroup
+
 	for scanner.Scan() { // internally, it advances token based on sperator
 		//fmt.Println(scanner.Text())  // token in unicode-char
 		//fmt.Println(scanner.Bytes()) // token in bytes
@@ -39,8 +46,13 @@ func main() {
 		flat, _ := fs.FlattenString(scanner.Text(), "", fs.DotStyle)
 		doc.ToMap(flat)
 		//println(doc.ToJson())
-		IndexWriter.IndexDocument(doc)
+		wg.Add(1)
+		IndexWriter.IndexDocument(doc, func() { wg.Done() })
 
 	}
+
+	wg.Wait()
+	elapsed := time.Since(start)
+	log.Printf("Binomial took %s", elapsed, id)
 
 }

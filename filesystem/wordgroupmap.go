@@ -1,13 +1,13 @@
 package filesystem
 
 import (
-	"encoding/json"
+	"container/list"
 	"reflect"
 	"sync"
 )
 
 type WordGroupMap struct {
-	wordGroupMap map[*uint][][]*uint
+	wordGroupMap map[*uint]*list.List
 	id           uint
 	someMapMutex sync.RWMutex
 }
@@ -16,7 +16,7 @@ type WordGroupMap struct {
 func (wd *WordGroupMap) IniWordGroupMap() *WordGroupMap {
 
 	wd.someMapMutex = sync.RWMutex{}
-	wd.wordGroupMap = make(map[*uint][][]*uint)
+	wd.wordGroupMap = make(map[*uint]*list.List)
 	wd.id = 0
 	return wd
 	//att.attributeMap = make(map[string]uint)
@@ -25,7 +25,7 @@ func (wd *WordGroupMap) IniWordGroupMap() *WordGroupMap {
 }
 
 //AddWord Add new word in map
-func (wd *WordGroupMap) AddAWordGroup(wordgroup []*uint) *uint {
+func (wd *WordGroupMap) AddAWordGroup(wordgroup *list.List) *uint {
 
 	wd.someMapMutex.Lock()
 
@@ -35,25 +35,25 @@ func (wd *WordGroupMap) AddAWordGroup(wordgroup []*uint) *uint {
 
 	for id, value := range wd.wordGroupMap {
 
-		for _, vl := range value {
-			//println("compararou:", fmt.Sprintf("%v", wordgroup), fmt.Sprintf("%v", vl))
-			//println("igual?", reflect.DeepEqual(vl, wordgroup))
+		for e := value.Front(); e != nil; e = e.Next() {
 
-			if reflect.DeepEqual(vl, wordgroup) {
+			localID := e.Value.(*list.List)
+
+			if reflect.DeepEqual(localID, wordgroup) {
 				exist = true
 				idgroup = id
 				break
 			}
-
 		}
+
 	}
 
 	if !exist {
 		wd.id++
 		newvalue := wd.id
 		idgroup = &newvalue
-		strut := make([][]*uint, 0)
-		strut = append(strut, wordgroup)
+		strut := list.New()
+		strut.PushBack(wordgroup)
 		wd.wordGroupMap[idgroup] = strut
 	}
 
@@ -72,6 +72,7 @@ func (wd *WordGroupMap) AddAWordGroup(wordgroup []*uint) *uint {
 	**/
 }
 
+/**
 func (wd *WordGroupMap) ToJson() string {
 
 	temp := make(map[uint][][]*uint)
@@ -88,3 +89,4 @@ func (wd *WordGroupMap) ToJson() string {
 
 	return string(data)
 }
+**/

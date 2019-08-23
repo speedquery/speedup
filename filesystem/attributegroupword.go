@@ -4,13 +4,16 @@ import (
 	"container/list"
 	"encoding/json"
 	"fmt"
+	"sync"
 )
 
 type AttributeGroupWord struct {
 	attributeGroupWord map[*uint]*list.List
+	someMapMutex       sync.RWMutex
 }
 
 func (attg *AttributeGroupWord) InitAttributeGroupWord() *AttributeGroupWord {
+	attg.someMapMutex = sync.RWMutex{}
 	attg.attributeGroupWord = make(map[*uint]*list.List)
 	return attg
 }
@@ -23,7 +26,9 @@ func (attg *AttributeGroupWord) GetIdGroupOfAttribute(idAttribute *uint) []*uint
 
 }
 **/
-func (attg *AttributeGroupWord) AddGroupWordsOfAttribute(idAttribute, idGroup *uint) *list.List {
+func (attg *AttributeGroupWord) AddGroupWordsOfAttribute(idAttribute, idGroup *uint) {
+
+	attg.someMapMutex.Lock()
 
 	idGroups, exist := attg.attributeGroupWord[idAttribute]
 
@@ -50,7 +55,9 @@ func (attg *AttributeGroupWord) AddGroupWordsOfAttribute(idAttribute, idGroup *u
 		}
 	}
 
-	return idGroups
+	attg.someMapMutex.Unlock()
+
+	//return idGroups
 
 }
 

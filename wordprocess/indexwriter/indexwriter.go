@@ -1,6 +1,7 @@
 package indexwriter
 
 import (
+	"container/list"
 	"fmt"
 	doc "speedup/document"
 	fs "speedup/filesystem"
@@ -18,8 +19,9 @@ func (idx *IndexWriter) CreateIndex(fileSystem *fs.FileSystem) *IndexWriter {
 	return idx
 }
 
-func (idx *IndexWriter) IndexDocument(document *doc.Document) {
+func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 
+	defer onExit()
 	//println("Documento", document.GetID())
 
 	for attribute, value := range document.GetMap() {
@@ -31,15 +33,14 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 		formatedValue := fmt.Sprintf("%v", value)
 		words := strings.Split(formatedValue, " ")
 
-		wordGroup := make([]*uint, 0)
+		wordGroup := list.New()
 
 		for _, word := range words {
 
 			newWord := stringprocess.ProcessWord(word)
 			idword := idx.fileSystem.GetWordMap().AddWord(newWord)
 			idx.fileSystem.GetAttributeWord().AddWordsOfAttribute(idAttribute, idword)
-
-			wordGroup = append(wordGroup, idword)
+			wordGroup.PushBack(idword)
 
 		}
 
