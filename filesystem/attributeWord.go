@@ -1,20 +1,18 @@
 package filesystem
 
 import (
-	"container/list"
-	"encoding/json"
-	"fmt"
+	"speedup/collection"
 	"sync"
 )
 
 type AttributeWord struct {
-	attributeWord map[*uint]*list.List
+	attributeWord map[*uint]*collection.Set
 	someMapMutex  sync.RWMutex
 }
 
 func (attw *AttributeWord) InitAttributeWord() *AttributeWord {
 	attw.someMapMutex = sync.RWMutex{}
-	attw.attributeWord = make(map[*uint]*list.List)
+	attw.attributeWord = make(map[*uint]*collection.Set)
 	return attw
 }
 
@@ -27,35 +25,18 @@ func (attw *AttributeWord) GetWordsOfAttribute(idAttribute *uint) []*uint {
 }
 **/
 
-func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) *list.List {
+func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) *collection.Set {
 
 	attw.someMapMutex.Lock()
+
 	idwords, exist := attw.attributeWord[idAttribute]
 
-	//println("Nil?", idwords == nil)
-
 	if !exist || idwords == nil {
-		idwords = list.New()
-		idwords.PushBack(idWord)
+		idwords = new(collection.Set).NewSet()
+		idwords.Add(idWord)
 		attw.attributeWord[idAttribute] = idwords
 	} else {
-		existSlice := false
-		for e := idwords.Front(); e != nil; e = e.Next() {
-
-			localIDword := e.Value.(*uint)
-
-			if localIDword == idWord {
-				//println("Existe slice?", *idWord)
-				existSlice = true
-				break
-			}
-		}
-
-		if !existSlice {
-			idwords.PushBack(idWord)
-			attw.attributeWord[idAttribute] = idwords
-		}
-
+		idwords.Add(idWord)
 	}
 
 	attw.someMapMutex.Unlock()
@@ -64,6 +45,7 @@ func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) *list.
 
 }
 
+/**
 func (attw *AttributeWord) ToJson() string {
 
 	temp := make(map[uint][]*uint)
@@ -89,3 +71,4 @@ func (attw *AttributeWord) ToJson() string {
 	return string(data)
 
 }
+**/

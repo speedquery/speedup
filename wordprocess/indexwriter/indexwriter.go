@@ -1,7 +1,6 @@
 package indexwriter
 
 import (
-	"container/list"
 	"fmt"
 	doc "speedup/document"
 	fs "speedup/filesystem"
@@ -33,21 +32,31 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 		formatedValue := fmt.Sprintf("%v", value)
 		words := strings.Split(formatedValue, " ")
 
-		wordGroup := list.New()
+		wordGroup := make([]string, 0) //list.New()
 
 		for _, word := range words {
 
 			newWord := stringprocess.ProcessWord(word)
 			idword := idx.fileSystem.GetWordMap().AddWord(newWord)
 			idx.fileSystem.GetAttributeWord().AddWordsOfAttribute(idAttribute, idword)
-			wordGroup.PushBack(idword)
+			wordGroup = append(wordGroup, fmt.Sprint(*idword))
 
 		}
 
+		//strings.Join()
+		//justString :=
+
+		//fmt.Println(justString)
+		/**
+		h := sha1.New()
+		h.Write([]byte("s"))
+		sha1_hash := hex.EncodeToString(h.Sum(nil))
+		println(sha1_hash)
+		**/
 		//bolB, _ := json.Marshal(wordGroup)
-		//idx.fileSystem.GetWordGroupMap().AddAWordGroup(wordGroup)
+		idWordGroup := idx.fileSystem.GetWordGroupMap().AddAWordGroup(strings.Join(wordGroup, " "))
 		//fmt.Println(*idWordGroup, string(bolB))
-		//idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
+		idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
 
 		//idDocument := document.GetID()
 		//println("DOCUMENTO GRUPO", idDocument, *idWordGroup)

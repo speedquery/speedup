@@ -1,20 +1,18 @@
 package filesystem
 
 import (
-	"container/list"
-	"encoding/json"
-	"fmt"
+	"speedup/collection"
 	"sync"
 )
 
 type AttributeGroupWord struct {
-	attributeGroupWord map[*uint]*list.List
+	attributeGroupWord map[*uint]*collection.Set
 	someMapMutex       sync.RWMutex
 }
 
 func (attg *AttributeGroupWord) InitAttributeGroupWord() *AttributeGroupWord {
 	attg.someMapMutex = sync.RWMutex{}
-	attg.attributeGroupWord = make(map[*uint]*list.List)
+	attg.attributeGroupWord = make(map[*uint]*collection.Set)
 	return attg
 }
 
@@ -32,27 +30,12 @@ func (attg *AttributeGroupWord) AddGroupWordsOfAttribute(idAttribute, idGroup *u
 
 	idGroups, exist := attg.attributeGroupWord[idAttribute]
 
-	if !exist {
-		idGroups = list.New()
-		idGroups.PushBack(idGroup)
+	if idGroups == nil || !exist {
+		idGroups = new(collection.Set).NewSet()
+		idGroups.Add(idGroup)
 		attg.attributeGroupWord[idAttribute] = idGroups
 	} else {
-		existSlice := false
-
-		for e := idGroups.Front(); e != nil; e = e.Next() {
-
-			localID := e.Value.(*uint)
-
-			if localID == idGroup {
-				existSlice = true
-				break
-			}
-		}
-
-		if !existSlice {
-			idGroups.PushBack(idGroup)
-			attg.attributeGroupWord[idAttribute] = idGroups
-		}
+		idGroups.Add(idGroup)
 	}
 
 	attg.someMapMutex.Unlock()
@@ -61,6 +44,7 @@ func (attg *AttributeGroupWord) AddGroupWordsOfAttribute(idAttribute, idGroup *u
 
 }
 
+/**
 func (attg *AttributeGroupWord) ToJson() string {
 
 	//data, err := json.Marshal(attg.attributeGroupWord)
@@ -88,3 +72,4 @@ func (attg *AttributeGroupWord) ToJson() string {
 	return string(data)
 
 }
+**/

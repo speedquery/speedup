@@ -1,69 +1,50 @@
 package filesystem
 
 import (
-	"container/list"
-	"encoding/json"
-	"fmt"
+	"speedup/collection"
 	"sync"
 )
 
 type GroupWordDocument struct {
-	groupWordDocument map[*uint]*list.List
+	groupWordDocument map[*uint]*collection.Set
 	someMapMutex      sync.RWMutex
 }
 
 func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
 
 	gw.someMapMutex = sync.RWMutex{}
-	gw.groupWordDocument = make(map[*uint]*list.List)
+	gw.groupWordDocument = make(map[*uint]*collection.Set)
 	return gw
 }
 
-func (gw *GroupWordDocument) GetIdGroupWord(idDocument *uint) *list.List {
+func (gw *GroupWordDocument) GetIdGroupWord(idDocument *uint) *collection.Set {
 
 	idGroups := gw.groupWordDocument[idDocument]
 	return idGroups
 
 }
 
-func (gw *GroupWordDocument) AddGroupWordDocument(idGroup *uint, idDocument uint) *list.List {
+func (gw *GroupWordDocument) AddGroupWordDocument(idGroup *uint, idDocument *uint) *collection.Set {
 
-	//gw.someMapMutex.Lock()
+	gw.someMapMutex.Lock()
 
 	idDocuments, exist := gw.groupWordDocument[idGroup]
 
 	if !exist || idDocuments == nil {
-		idDocuments = list.New()
-		idDocuments.PushBack(idDocument)
+		idDocuments = new(collection.Set).NewSet()
+		idDocuments.Add(idDocument)
 		gw.groupWordDocument[idGroup] = idDocuments
 	} else {
-
-		//println(*idGroup, *idDocument, exist)
-
-		existSlice := false
-
-		for e := idDocuments.Front(); e != nil; e = e.Next() {
-
-			localID := e.Value.(uint)
-
-			if localID == idDocument {
-				existSlice = true
-				break
-			}
-		}
-
-		if !existSlice {
-			idDocuments.PushBack(idDocument)
-			//gw.groupWordDocument[idGroup] = idDocuments
-		}
-
+		idDocuments.Add(idDocument)
 	}
-	//gw.someMapMutex.Unlock()
+
+	gw.someMapMutex.Unlock()
 
 	return idDocuments
 
 }
 
+/**
 func (gw *GroupWordDocument) ToJson() string {
 
 	temp := make(map[uint][]*uint)
@@ -90,3 +71,5 @@ func (gw *GroupWordDocument) ToJson() string {
 	return string(data)
 
 }
+
+**/

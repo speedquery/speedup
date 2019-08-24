@@ -5,6 +5,7 @@ type Set struct {
 }
 
 func (st *Set) NewSet() *Set {
+	st.set = make(map[*uint]bool)
 	return st
 }
 
