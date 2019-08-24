@@ -37,6 +37,7 @@ func main() {
 
 	var wg sync.WaitGroup
 
+	var i uint = 0
 	for scanner.Scan() { // internally, it advances token based on sperator
 		//fmt.Println(scanner.Text())  // token in unicode-char
 		//fmt.Println(scanner.Bytes()) // token in bytes
@@ -47,7 +48,16 @@ func main() {
 		doc.ToMap(flat)
 		//println(doc.ToJson())
 		wg.Add(1)
+		start := time.Now()
 		IndexWriter.IndexDocument(doc, func() { wg.Done() })
+
+		if i == 1000 {
+			log.Printf("Binomial took %s", time.Since(start))
+			//println("Valor de i", id)
+			i = 0
+		} else {
+			i++
+		}
 
 	}
 

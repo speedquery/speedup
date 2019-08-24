@@ -45,13 +45,13 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 		}
 
 		//bolB, _ := json.Marshal(wordGroup)
-		idWordGroup := idx.fileSystem.GetWordGroupMap().AddAWordGroup(wordGroup)
+		//idx.fileSystem.GetWordGroupMap().AddAWordGroup(wordGroup)
 		//fmt.Println(*idWordGroup, string(bolB))
-		idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
+		//idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
 
-		idDocument := document.GetID()
+		//idDocument := document.GetID()
 		//println("DOCUMENTO GRUPO", idDocument, *idWordGroup)
-		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, idDocument)
+		//idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, idDocument)
 		//println(*idWordGroup, idDocument)
 
 	}
