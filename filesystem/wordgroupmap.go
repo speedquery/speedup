@@ -1,6 +1,7 @@
 package filesystem
 
 import (
+	"encoding/json"
 	"sync"
 )
 
@@ -41,16 +42,9 @@ func (wd *WordGroupMap) AddAWordGroup(wordgroup string) *uint {
 
 }
 
-/**
 func (wd *WordGroupMap) ToJson() string {
 
-	temp := make(map[uint][][]*uint)
-
-	for key, value := range wd.wordGroupMap {
-		temp[*key] = value
-	}
-
-	data, err := json.Marshal(temp)
+	data, err := json.Marshal(wd.wordGroupMap)
 
 	if err != nil {
 		panic(err)
@@ -58,4 +52,3 @@ func (wd *WordGroupMap) ToJson() string {
 
 	return string(data)
 }
-**/

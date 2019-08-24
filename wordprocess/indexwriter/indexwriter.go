@@ -73,6 +73,6 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 	//println("DOCUMENT GROUP", idx.fileSystem.GetGroupWordDocument().ToJson())
 
 	//println(idx.fileSystem.GetWordGroupMap().ToJson())
-	//println(idx.fileSystem.GetGroupWordDocument().ToJson())
+	println(idx.fileSystem.GetGroupWordDocument().ToJson())
 
 }

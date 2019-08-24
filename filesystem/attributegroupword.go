@@ -1,6 +1,8 @@
 package filesystem
 
 import (
+	"encoding/json"
+	"fmt"
 	"speedup/collection"
 	"sync"
 )
@@ -44,7 +46,6 @@ func (attg *AttributeGroupWord) AddGroupWordsOfAttribute(idAttribute, idGroup *u
 
 }
 
-/**
 func (attg *AttributeGroupWord) ToJson() string {
 
 	//data, err := json.Marshal(attg.attributeGroupWord)
@@ -55,8 +56,8 @@ func (attg *AttributeGroupWord) ToJson() string {
 
 		groups := make([]*uint, 0)
 
-		for e := value.Front(); e != nil; e = e.Next() {
-			groups = append(groups, e.Value.(*uint))
+		for key, _ := range value.GetSet() {
+			groups = append(groups, key)
 		}
 
 		temp[*key] = groups
@@ -72,4 +73,3 @@ func (attg *AttributeGroupWord) ToJson() string {
 	return string(data)
 
 }
-**/

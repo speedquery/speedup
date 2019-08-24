@@ -9,6 +9,10 @@ func (st *Set) NewSet() *Set {
 	return st
 }
 
+func (st *Set) GetSet() map[*uint]bool {
+	return st.set
+}
+
 func (st *Set) Add(value *uint) {
 	st.set[value] = true
 }

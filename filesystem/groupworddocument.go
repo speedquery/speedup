@@ -1,6 +1,8 @@
 package filesystem
 
 import (
+	"encoding/json"
+	"fmt"
 	"speedup/collection"
 	"sync"
 )
@@ -44,7 +46,6 @@ func (gw *GroupWordDocument) AddGroupWordDocument(idGroup *uint, idDocument *uin
 
 }
 
-/**
 func (gw *GroupWordDocument) ToJson() string {
 
 	temp := make(map[uint][]*uint)
@@ -53,9 +54,8 @@ func (gw *GroupWordDocument) ToJson() string {
 
 		words := make([]*uint, 0)
 
-		for e := values.Front(); e != nil; e = e.Next() {
-			vl := e.Value.(uint)
-			words = append(words, &vl)
+		for key, _ := range values.GetSet() {
+			words = append(words, key)
 		}
 
 		temp[*key] = words
@@ -71,5 +71,3 @@ func (gw *GroupWordDocument) ToJson() string {
 	return string(data)
 
 }
-
-**/

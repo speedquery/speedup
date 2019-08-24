@@ -1,6 +1,8 @@
 package filesystem
 
 import (
+	"encoding/json"
+	"fmt"
 	"speedup/collection"
 	"sync"
 )
@@ -45,7 +47,6 @@ func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) *colle
 
 }
 
-/**
 func (attw *AttributeWord) ToJson() string {
 
 	temp := make(map[uint][]*uint)
@@ -54,8 +55,8 @@ func (attw *AttributeWord) ToJson() string {
 
 		words := make([]*uint, 0)
 
-		for e := idwords.Front(); e != nil; e = e.Next() {
-			words = append(words, e.Value.(*uint))
+		for key, _ := range idwords.GetSet() {
+			words = append(words, key)
 		}
 
 		temp[*key] = words
@@ -71,4 +72,3 @@ func (attw *AttributeWord) ToJson() string {
 	return string(data)
 
 }
-**/
