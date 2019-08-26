@@ -27,6 +27,10 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 
 		idAttribute := idx.fileSystem.GetAttributeMap().AddAttribute(attribute)
 
+		go func(id *uint) {
+
+		}(idAttribute)
+
 		formatedValue := fmt.Sprintf("%v", value)
 		words := strings.Split(formatedValue, " ")
 
@@ -36,7 +40,7 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 
 			newWord := stringprocess.ProcessWord(word)
 			idword := idx.fileSystem.GetWordMap().AddWord(newWord)
-			idx.fileSystem.GetAttributeWord().AddWordsOfAttribute(idAttribute, idword)
+			//idx.fileSystem.GetAttributeWord().AddWordsOfAttribute(idAttribute, idword)
 			wordGroup = append(wordGroup, fmt.Sprint(*idword))
 
 		}
@@ -52,6 +56,7 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 		println(sha1_hash)
 		**/
 		//bolB, _ := json.Marshal(wordGroup)
+		//idWordGroup :=
 		idWordGroup := idx.fileSystem.GetWordGroupMap().AddAWordGroup(strings.Join(wordGroup, ""))
 		//fmt.Println(*idWordGroup, string(bolB))
 		idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)

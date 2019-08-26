@@ -46,8 +46,6 @@ func main() {
 
 		flat, _ := fs.FlattenString(scanner.Text(), "", fs.DotStyle)
 		doc.ToMap(flat)
-		//println(doc.ToJson())
-		//println(doc.ToJson())
 		wg.Add(1)
 		start := time.Now()
 		IndexWriter.IndexDocument(doc, func() { wg.Done() })

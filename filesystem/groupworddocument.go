@@ -3,6 +3,7 @@ package filesystem
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"speedup/collection"
 	"sync"
 )
@@ -26,8 +27,24 @@ func (gw *GroupWordDocument) GetIdGroupWord(idDocument *uint) *collection.Set {
 
 }
 
-func (gw *GroupWordDocument) AddGroupWordDocument(idGroup *uint, idDocument *uint) *collection.Set {
+func (gw *GroupWordDocument) AddGroupWordDocument(idGroup *uint, idDocument *uint) {
+	/**
+		ex, err := os.Executable()
+		if err != nil {
+			panic(err)
+		}
+		exPath := filepath.Dir(ex)
+		fmt.Println(exPath)
+	**/
+	if _, err := os.Stat("C:/testeGolang"); os.IsNotExist(err) {
 
+		println("Pasta nao existe")
+		os.Mkdir("C:/testeGolang", 0777)
+
+		// path/to/whatever does not exist
+	}
+
+	/**
 	gw.someMapMutex.Lock()
 
 	idDocuments, exist := gw.groupWordDocument[idGroup]
