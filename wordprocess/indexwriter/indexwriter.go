@@ -27,8 +27,6 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 
 		idAttribute := idx.fileSystem.GetAttributeMap().AddAttribute(attribute)
 
-		//println(*idAttribute, attribute)
-
 		formatedValue := fmt.Sprintf("%v", value)
 		words := strings.Split(formatedValue, " ")
 
@@ -54,25 +52,26 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 		println(sha1_hash)
 		**/
 		//bolB, _ := json.Marshal(wordGroup)
-		idWordGroup := idx.fileSystem.GetWordGroupMap().AddAWordGroup(strings.Join(wordGroup, " "))
+		idWordGroup := idx.fileSystem.GetWordGroupMap().AddAWordGroup(strings.Join(wordGroup, ""))
 		//fmt.Println(*idWordGroup, string(bolB))
 		idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
 
-		//idDocument := document.GetID()
 		//println("DOCUMENTO GRUPO", idDocument, *idWordGroup)
-		//idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, idDocument)
+		idDocument := document.GetID()
+		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, &idDocument)
 		//println(*idWordGroup, idDocument)
 
 	}
 
-	//println(idx.fileSystem.GetAttributeWord().ToJson())
-	//println("ATT MAP", idx.fileSystem.GetAttributeMap().ToJson())
-	//println("WORD MAP", idx.fileSystem.GetWordMap().ToJson())
-	//println("ATT WORD", idx.fileSystem.GetAttributeWord().ToJson())
-	//println("WORD GROUP MAP", idx.fileSystem.GetWordGroupMap().ToJson())
-	//println("DOCUMENT GROUP", idx.fileSystem.GetGroupWordDocument().ToJson())
+	//	println("==================================================")
+	//	println(idx.fileSystem.GetAttributeWord().ToJson())
+	//	println("ATT MAP", idx.fileSystem.GetAttributeMap().ToJson())
+	//	println("WORD MAP", idx.fileSystem.GetWordMap().ToJson())
+	//	println("ATT WORD", idx.fileSystem.GetAttributeWord().ToJson())
+	//	println("WORD GROUP MAP", idx.fileSystem.GetWordGroupMap().ToJson())
+	//	println("DOCUMENT GROUP", idx.fileSystem.GetGroupWordDocument().ToJson())
 
 	//println(idx.fileSystem.GetWordGroupMap().ToJson())
-	println(idx.fileSystem.GetGroupWordDocument().ToJson())
+	//println(idx.fileSystem.GetGroupWordDocument().ToJson())
 
 }

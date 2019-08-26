@@ -34,6 +34,8 @@ func (doc *Document) ToMap(jsonString string) map[string]interface{} {
 
 	json.Unmarshal([]byte(jsonString), &doc.fields)
 
+	delete(doc.fields, "_id.$oid")
+
 	return doc.fields
 }
 

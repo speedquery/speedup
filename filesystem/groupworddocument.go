@@ -44,6 +44,21 @@ func (gw *GroupWordDocument) AddGroupWordDocument(idGroup *uint, idDocument *uin
 
 	return idDocuments
 
+	/**
+		idDocuments, exist := gw.groupWordDocument[idGroup]
+
+		if !exist || idDocuments == nil {
+			idDocuments = new(collection.Set).NewSet()
+			idDocuments.Add(idDocument)
+			gw.groupWordDocument[idGroup] = idDocuments
+		} else {
+			idDocuments.Add(idDocument)
+		}
+
+		gw.someMapMutex.Unlock()
+
+		return idDocuments
+	**/
 }
 
 func (gw *GroupWordDocument) ToJson() string {

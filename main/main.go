@@ -24,7 +24,7 @@ func main() {
 	fileSystem := new(fs.FileSystem).CreateFileSystem()
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/teste.txt")
+	file, err := os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,11 +47,12 @@ func main() {
 		flat, _ := fs.FlattenString(scanner.Text(), "", fs.DotStyle)
 		doc.ToMap(flat)
 		//println(doc.ToJson())
+		//println(doc.ToJson())
 		wg.Add(1)
 		start := time.Now()
 		IndexWriter.IndexDocument(doc, func() { wg.Done() })
 
-		if i == 1000 {
+		if i == 10000 {
 			log.Printf("Binomial took %s", time.Since(start))
 			//println("Valor de i", id)
 			i = 0
@@ -59,10 +60,17 @@ func main() {
 			i++
 		}
 
+		//doc.DeleteMemory()
+		//println(doc.ToJson())
 	}
 
 	wg.Wait()
 	elapsed := time.Since(start)
-	log.Printf("Binomial took %s", elapsed, id)
+	log.Printf("Binomial took %s", elapsed)
+	println("Total de registro", id)
+
+	for {
+		time.Sleep(time.Second)
+	}
 
 }
