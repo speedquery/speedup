@@ -9,25 +9,36 @@ import (
 )
 
 type GroupWordDocument struct {
-	groupWordDocument map[*uint]*collection.Set
+	groupWordDocument *collection.Set
 	someMapMutex      sync.RWMutex
+	folder            string
 }
 
 func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
 
 	gw.someMapMutex = sync.RWMutex{}
-	gw.groupWordDocument = make(map[*uint]*collection.Set)
+	gw.groupWordDocument = new(collection.Set).NewSet()
+
+	gw.folder = "/users/thiagorodrigues/documents/goteste"
+
+	if _, err := os.Stat(gw.folder); os.IsNotExist(err) {
+		os.Mkdir(gw.folder, 0777)
+	}
+
 	return gw
 }
 
+/**
 func (gw *GroupWordDocument) GetIdGroupWord(idDocument *uint) *collection.Set {
 
 	idGroups := gw.groupWordDocument[idDocument]
 	return idGroups
 
 }
+**/
 
 func (gw *GroupWordDocument) AddGroupWordDocument(idGroup *uint, idDocument *uint) {
+
 	/**
 		ex, err := os.Executable()
 		if err != nil {
@@ -36,13 +47,8 @@ func (gw *GroupWordDocument) AddGroupWordDocument(idGroup *uint, idDocument *uin
 		exPath := filepath.Dir(ex)
 		fmt.Println(exPath)
 	**/
-	if _, err := os.Stat("C:/testeGolang"); os.IsNotExist(err) {
 
-		println("Pasta nao existe")
-		os.Mkdir("C:/testeGolang", 0777)
-
-		// path/to/whatever does not exist
-	}
+	// path/to/whatever does not exist
 
 	/**
 	gw.someMapMutex.Lock()
