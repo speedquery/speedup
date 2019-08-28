@@ -1,7 +1,7 @@
 package filesystem
 
+/**
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"speedup/collection"
@@ -9,7 +9,7 @@ import (
 )
 
 type GroupWordDocument struct {
-	groupWordDocument map[*uint]*collection.Set
+	groupWordDocument *collection.Set
 	someMapMutex      sync.RWMutex
 	folder            string
 }
@@ -17,7 +17,7 @@ type GroupWordDocument struct {
 func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
 
 	gw.someMapMutex = sync.RWMutex{}
-	gw.groupWordDocument = make(map[*uint]*collection.Set)
+	gw.groupWordDocument = new(collection.Set).NewSet()
 
 	gw.folder = "/users/thiagorodrigues/documents/goteste"
 
@@ -28,6 +28,21 @@ func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
 	return gw
 }
 
+func (gw *GroupWordDocument) createFile(name uint) {
+
+	if _, err := os.Stat(gw.folder + "//" + fmt.Sprintf("%v", name) + ".txt"); os.IsNotExist(err) {
+
+		file, err := os.Create(gw.folder + "//" + fmt.Sprintf("%v", name) + ".txt")
+
+		if err != nil {
+			panic(err)
+		}
+
+		defer file.Close()
+	}
+
+}
+
 /**
 func (gw *GroupWordDocument) GetIdGroupWord(idDocument *uint) *collection.Set {
 
@@ -35,9 +50,27 @@ func (gw *GroupWordDocument) GetIdGroupWord(idDocument *uint) *collection.Set {
 	return idGroups
 
 }
-**/
 
-func (gw *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) {
+func (gw *GroupWordDocument) AddGroupWordDocument(idGroup *uint, idDocument *uint) {
+
+	exist := gw.groupWordDocument.IsExistValue(idGroup)
+
+	if !exist {
+		gw.createFile(*idGroup)
+	}
+
+	f, err := os.OpenFile(gw.folder+"//"+fmt.Sprintf("%v", *idGroup)+".txt", os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		panic(err)
+	}
+
+	defer f.Close()
+
+	str := fmt.Sprintf("%v", *idDocument)
+
+	if _, err = f.WriteString(str + "\n"); err != nil {
+		panic(err)
+	}
 
 	/**
 		ex, err := os.Executable()
@@ -48,8 +81,9 @@ func (gw *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) {
 		fmt.Println(exPath)
 	**/
 
-	// path/to/whatever does not exist
+// path/to/whatever does not exist
 
+/**
 	gw.someMapMutex.Lock()
 
 	idDocuments, exist := gw.groupWordDocument[idGroup]
@@ -64,7 +98,7 @@ func (gw *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) {
 
 	gw.someMapMutex.Unlock()
 
-	//return idDocuments
+	return idDocuments
 
 	/**
 		idDocuments, exist := gw.groupWordDocument[idGroup]
@@ -80,7 +114,6 @@ func (gw *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) {
 		gw.someMapMutex.Unlock()
 
 		return idDocuments
-	**/
 }
 
 func (gw *GroupWordDocument) ToJson() string {
@@ -108,3 +141,4 @@ func (gw *GroupWordDocument) ToJson() string {
 	return string(data)
 
 }
+**/

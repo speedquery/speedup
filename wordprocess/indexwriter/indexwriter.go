@@ -23,13 +23,12 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 	defer onExit()
 	//println("Documento", document.GetID())
 
+	tmp := document.GetID()
+	var idDocument *uint = &tmp
+
 	for attribute, value := range document.GetMap() {
 
 		idAttribute := idx.fileSystem.GetAttributeMap().AddAttribute(attribute)
-
-		go func(id *uint) {
-
-		}(idAttribute)
 
 		formatedValue := fmt.Sprintf("%v", value)
 		words := strings.Split(formatedValue, " ")
@@ -62,8 +61,7 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 		idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
 
 		//println("DOCUMENTO GRUPO", idDocument, *idWordGroup)
-		idDocument := document.GetID()
-		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, &idDocument)
+		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, idDocument)
 		//println(*idWordGroup, idDocument)
 
 	}
