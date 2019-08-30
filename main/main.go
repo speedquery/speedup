@@ -19,7 +19,6 @@ func isMn(r rune) bool {
 func main() {
 
 	start := time.Now()
-
 	//cria o sistema de arquivos que vai gerenciar os indices
 	fileSystem := new(fs.FileSystem).CreateFileSystem()
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
