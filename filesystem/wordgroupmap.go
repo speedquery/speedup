@@ -17,9 +17,24 @@ func (wd *WordGroupMap) IniWordGroupMap() *WordGroupMap {
 	wd.wordGroupMap = make(map[string]*uint)
 	wd.id = 0
 	return wd
-	//att.attributeMap = make(map[string]uint)
-	//att.id = 0
-	//return att
+}
+
+func (self *WordGroupMap) SetNewMap(newMap map[string]*uint) *WordGroupMap {
+	self.wordGroupMap = newMap
+	return self
+}
+
+func (self *WordGroupMap) GetPointer(id uint) *uint {
+
+	var point *uint = nil
+	for _, value := range self.wordGroupMap {
+		if *value == id {
+			point = value
+		}
+	}
+
+	return point
+
 }
 
 //AddWord Add new word in map

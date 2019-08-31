@@ -44,25 +44,9 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 
 		}
 
-		//strings.Join()
-		//justString :=
-
-		//fmt.Println(justString)
-		/**
-		h := sha1.New()
-		h.Write([]byte("s"))
-		sha1_hash := hex.EncodeToString(h.Sum(nil))
-		println(sha1_hash)
-		**/
-		//bolB, _ := json.Marshal(wordGroup)
-		//idWordGroup :=
 		idWordGroup := idx.fileSystem.GetWordGroupMap().AddAWordGroup(strings.Join(wordGroup, ""))
-		//fmt.Println(*idWordGroup, string(bolB))
 		idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
-
-		//println("DOCUMENTO GRUPO", idDocument, *idWordGroup)
 		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, idDocument)
-		//println(*idWordGroup, idDocument)
 
 	}
 

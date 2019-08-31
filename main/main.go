@@ -18,12 +18,27 @@ func isMn(r rune) bool {
 
 func main() {
 
+	userHomeDir, err := os.UserHomeDir()
+
+	if err != nil {
+		panic(err)
+	}
+
+	workFolder := userHomeDir + "\\.speedquery"
+
+	if _, err := os.Stat(workFolder); os.IsNotExist(err) {
+		os.Mkdir(workFolder, 0777)
+	}
+
+	println("Global Path:", workFolder)
+
 	start := time.Now()
 	//cria o sistema de arquivos que vai gerenciar os indices
-	fileSystem := new(fs.FileSystem).CreateFileSystem()
+	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/dados.txt")
+	//file, err := os.Open("C:/Users/Thago Rodrigues/go/src/speedup/dados.txt")
+	file, err := os.Open("speedup/teste2.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,8 +81,13 @@ func main() {
 	log.Printf("Binomial took %s", elapsed)
 	println("Total de registro", id)
 
-	for {
-		time.Sleep(time.Second)
-	}
+	fileSystem.SerealizeAttributeMap()
+	fileSystem.SerealizeWordMap()
+	fileSystem.SerealizeWordGroupMap()
+	fileSystem.SerealizeAttributeGroupWord()
+
+	//	for {
+	//		time.Sleep(time.Second)
+	//	}
 
 }

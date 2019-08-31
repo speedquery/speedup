@@ -27,7 +27,11 @@ func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
 	//gw.control = make(map[*uint]uint)
 	gw.qtd = 0
 
-	gw.folder = "/users/thiagorodrigues/documents/goteste"
+	if runtime.GOOS == "windows" {
+		gw.folder = "C:/data2"
+	} else {
+		gw.folder = "/users/thiagorodrigues/documents/goteste"
+	}
 
 	if _, err := os.Stat(gw.folder); os.IsNotExist(err) {
 		os.Mkdir(gw.folder, 0777)

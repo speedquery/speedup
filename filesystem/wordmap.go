@@ -20,6 +20,11 @@ func (wd *WordMap) InitWordMap() *WordMap {
 	return wd
 }
 
+func (wd *WordMap) SetNewMap(newMap map[string]*uint) *WordMap {
+	wd.wordMap = newMap
+	return wd
+}
+
 //AddWord Add new word in map
 func (wd *WordMap) AddWord(word string) *uint {
 

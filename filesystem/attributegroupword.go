@@ -18,6 +18,11 @@ func (attg *AttributeGroupWord) InitAttributeGroupWord() *AttributeGroupWord {
 	return attg
 }
 
+func (attg *AttributeGroupWord) SetNewMap(newMap map[*uint]*collection.Set) *AttributeGroupWord {
+	attg.attributeGroupWord = newMap
+	return attg
+}
+
 /**
 func (attg *AttributeGroupWord) GetIdGroupOfAttribute(idAttribute *uint) []*uint {
 

@@ -12,41 +12,57 @@ type AttributeMap struct {
 }
 
 //NewWordMap create new wordmap
-func (att *AttributeMap) IniAttributeMap() *AttributeMap {
-	att.someMapMutex = sync.RWMutex{}
+func (self *AttributeMap) IniAttributeMap() *AttributeMap {
+	self.someMapMutex = sync.RWMutex{}
 
-	att.attributeMap = make(map[string]*uint)
-	att.id = 0
-	return att
+	self.attributeMap = make(map[string]*uint)
+	self.id = 0
+	return self
+}
+
+func (self *AttributeMap) SetNewMap(newMap map[string]*uint) *AttributeMap {
+	self.attributeMap = newMap
+	return self
+}
+
+func (self *AttributeMap) GetPointer(id uint) *uint {
+	var point *uint = nil
+	for _, value := range self.attributeMap {
+		if *value == id {
+			point = value
+		}
+	}
+
+	return point
+
 }
 
 //AddWord Add new word in map
-func (att *AttributeMap) AddAttribute(attribute string) *uint {
+func (self *AttributeMap) AddAttribute(attribute string) *uint {
 
-	att.someMapMutex.Lock()
+	self.someMapMutex.Lock()
 
-	value, exist := att.attributeMap[attribute]
+	value, exist := self.attributeMap[attribute]
 
 	if !exist {
-		att.id++
-		newvalue := att.id
+		self.id++
+		newvalue := self.id
 		value = &newvalue
-		att.attributeMap[attribute] = value
+		self.attributeMap[attribute] = value
 	}
 
-	att.someMapMutex.Unlock()
+	self.someMapMutex.Unlock()
 
 	return value
 }
 
-func (att *AttributeMap) ToJson() string {
+func (self *AttributeMap) ToJson() string {
 
-	data, err := json.Marshal(att.attributeMap)
+	data, err := json.Marshal(self.attributeMap)
 
 	if err != nil {
 		panic(err)
 	}
 
 	return string(data)
-
 }

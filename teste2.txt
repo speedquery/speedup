@@ -1,4 +1,4 @@
-{"nome":"thiago thiago luiz"}
-{"nome":"thiago luiz"}
+{"nome":"thiago luiz", "idade":30}
+{"nome":"thiago luiz", "sexo":"masculino"}
 {"nome":"tatiane rodrigues"}
 {"nome":"isabella rodrigues"}
