@@ -27,7 +27,7 @@ func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
 	//gw.control = make(map[*uint]uint)
 	gw.qtd = 0
 
-	gw.folder = "C:/data2"
+	gw.folder = "/users/thiagorodrigues/documents/goteste"
 
 	if _, err := os.Stat(gw.folder); os.IsNotExist(err) {
 		os.Mkdir(gw.folder, 0777)
@@ -40,7 +40,6 @@ func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
 		for {
 
 			time.Sleep(time.Minute)
-			runtime.GC()
 
 			data = gw.Clone()
 
@@ -52,8 +51,6 @@ func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
 				if err != nil {
 					panic(err)
 				}
-
-				defer openedFile.Close()
 
 				bufferedWriter := bufio.NewWriter(openedFile)
 
@@ -67,7 +64,11 @@ func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
 				//
 				//}(key, value)
 
+				openedFile.Close()
+
 			}
+
+			runtime.GC()
 
 			//println("Limpou memoria", len(tm))
 
@@ -86,7 +87,7 @@ func (gw *GroupWordDocument) createFile(name uint) {
 
 	file, err := os.Create(path)
 
-	defer file.Close()
+	file.Close()
 
 	if err != nil {
 		panic(err)
@@ -135,8 +136,6 @@ func (gw *GroupWordDocument) Clone() map[uint][]uint {
 
 			temp[*key] = data
 			gw.groupWordDocument[key] = value.NewSet()
-		} else {
-			println("Igual a Zerooo")
 		}
 	}
 
@@ -153,10 +152,12 @@ func (gw *GroupWordDocument) Add(idGroup, idDocument *uint) (*collection.Set, bo
 
 	gw.someMapMutex.Lock()
 	if !exist || data == nil {
+
+		gw.createFile(*idGroup)
+
 		data = new(collection.Set).NewSet()
 		data.Add(idDocument)
 		gw.groupWordDocument[idGroup] = data
-		gw.createFile(*idGroup)
 	} else {
 		data.Add(idDocument)
 	}
