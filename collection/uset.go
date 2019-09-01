@@ -1,31 +1,42 @@
 package collection
 
+import "sync"
+
 type Set struct {
-	set map[*uint]bool
+	someMapMutex sync.RWMutex
+	set          map[*uint]bool
 }
 
-func (st *Set) NewSet() *Set {
-	st.set = make(map[*uint]bool)
-	return st
+func (self *Set) NewSet() *Set {
+	self.someMapMutex = sync.RWMutex{}
+	self.set = make(map[*uint]bool)
+	return self
 }
 
-func (st *Set) IsExistValue(key *uint) bool {
+func (self *Set) IsExistValue(key *uint) bool {
 
-	_, exist := st.set[key]
+	self.someMapMutex.Lock()
+	_, exist := self.set[key]
+	self.someMapMutex.Unlock()
 
 	return exist
 }
 
-func (st *Set) GetSet() map[*uint]bool {
-	return st.set
+func (self *Set) GetSet() map[*uint]bool {
+	return self.set
 }
 
-func (st *Set) Add(value *uint) {
-	st.set[value] = true
+func (self *Set) Add(value *uint) {
+	self.someMapMutex.Lock()
+	self.set[value] = true
+	self.someMapMutex.Unlock()
 }
 
-func (st *Set) Delete(value *uint) {
-	delete(st.set, value)
+func (self *Set) Delete(value *uint) {
+	self.someMapMutex.Lock()
+	delete(self.set, value)
+	self.someMapMutex.Unlock()
+
 }
 
 func (st *Set) Size() int {

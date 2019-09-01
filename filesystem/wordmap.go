@@ -46,11 +46,15 @@ func (wd *WordMap) AddWord(word string) *uint {
 
 func (wd *WordMap) ToJson() string {
 
+	wd.someMapMutex.Lock()
+
 	data, err := json.Marshal(wd.wordMap)
 
 	if err != nil {
 		panic(err)
 	}
+
+	wd.someMapMutex.Unlock()
 
 	return string(data)
 

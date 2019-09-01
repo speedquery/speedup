@@ -20,18 +20,26 @@ func (wd *WordGroupMap) IniWordGroupMap() *WordGroupMap {
 }
 
 func (self *WordGroupMap) SetNewMap(newMap map[string]*uint) *WordGroupMap {
+	self.someMapMutex.Lock()
 	self.wordGroupMap = newMap
+	self.someMapMutex.Unlock()
+
 	return self
 }
 
 func (self *WordGroupMap) GetPointer(id uint) *uint {
 
 	var point *uint = nil
+
+	self.someMapMutex.Lock()
+
 	for _, value := range self.wordGroupMap {
 		if *value == id {
 			point = value
 		}
 	}
+
+	self.someMapMutex.Unlock()
 
 	return point
 
@@ -57,13 +65,17 @@ func (wd *WordGroupMap) AddAWordGroup(wordgroup string) *uint {
 
 }
 
-func (wd *WordGroupMap) ToJson() string {
+func (self *WordGroupMap) ToJson() string {
 
-	data, err := json.Marshal(wd.wordGroupMap)
+	self.someMapMutex.Lock()
+
+	data, err := json.Marshal(self.wordGroupMap)
 
 	if err != nil {
 		panic(err)
 	}
+
+	self.someMapMutex.Unlock()
 
 	return string(data)
 }

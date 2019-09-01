@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"log"
 	"os"
+	"runtime"
 	"speedup/document"
 	fs "speedup/filesystem"
 	idx "speedup/wordprocess/indexwriter"
@@ -24,13 +25,24 @@ func main() {
 		panic(err)
 	}
 
-	workFolder := userHomeDir + "\\.speedquery"
+	var workFolder string
 
-	if _, err := os.Stat(workFolder); os.IsNotExist(err) {
-		os.Mkdir(workFolder, 0777)
+	if runtime.GOOS == "windows" {
+		workFolder = userHomeDir + "\\.speedquery"
+	} else {
+		workFolder = userHomeDir + "/speedquery2"
 	}
 
-	println("Global Path:", workFolder)
+	if _, err := os.Stat(workFolder); os.IsNotExist(err) {
+		err := os.Mkdir(workFolder, 0777)
+
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	println("OS:", runtime.GOOS, "/", runtime.GOARCH)
+	println("GLOBAL PATH:", workFolder)
 
 	start := time.Now()
 	//cria o sistema de arquivos que vai gerenciar os indices
@@ -38,7 +50,7 @@ func main() {
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
 	//file, err := os.Open("C:/Users/Thago Rodrigues/go/src/speedup/dados.txt")
-	file, err := os.Open("speedup/teste2.txt")
+	file, err := os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -81,13 +93,8 @@ func main() {
 	log.Printf("Binomial took %s", elapsed)
 	println("Total de registro", id)
 
-	fileSystem.SerealizeAttributeMap()
-	fileSystem.SerealizeWordMap()
-	fileSystem.SerealizeWordGroupMap()
-	fileSystem.SerealizeAttributeGroupWord()
-
-	//	for {
-	//		time.Sleep(time.Second)
-	//	}
+	for {
+		time.Sleep(time.Second)
+	}
 
 }

@@ -1,4 +1,4 @@
-package filesystem
+package serialization
 
 import (
 	"bufio"
@@ -6,82 +6,10 @@ import (
 	"os"
 	"runtime"
 	"speedup/collection"
+	"speedup/filesystem"
 	"strconv"
 	"time"
 )
-
-/*
-FileSystem tem a função de fazer o gerenciamento de todos os indices
-criados
-*/
-
-type FileSystem struct {
-	wordmap            *WordMap
-	attributeMap       *AttributeMap
-	attributeWord      *AttributeWord
-	wordGroupMap       *WordGroupMap
-	attributeGroupWord *AttributeGroupWord
-	groupWordDocument  *GroupWordDocument
-	serialization      *Serialization
-	Configuration      map[string]string
-}
-
-func (self *FileSystem) getBar() string {
-
-	var bar string
-
-	if runtime.GOOS == "windows" {
-		bar = "\\"
-	} else {
-		bar = "/"
-	}
-
-	return bar
-
-}
-
-func (self *FileSystem) CreateFileSystem(nameFileSystem string, workFolder string) *FileSystem {
-
-	self.Configuration = make(map[string]string)
-	self.Configuration["nameFileSystem"] = nameFileSystem
-	self.Configuration["path"] = workFolder
-	self.Configuration["fileSystemFolder"] = workFolder + self.getBar() + nameFileSystem
-
-	self.wordmap = new(WordMap).InitWordMap()
-	self.attributeMap = new(AttributeMap).IniAttributeMap()
-	self.attributeWord = new(AttributeWord).InitAttributeWord()
-	self.wordGroupMap = new(WordGroupMap).IniWordGroupMap()
-	self.attributeGroupWord = new(AttributeGroupWord).InitAttributeGroupWord()
-	self.groupWordDocument = new(GroupWordDocument).InitGroupWordDocument(self.Configuration["fileSystemFolder"])
-
-	self.serialization = new(Serialization).CreateSerialization(self)
-
-	return self
-}
-
-func (self *FileSystem) GetWordMap() *WordMap {
-	return self.wordmap
-}
-
-func (self *FileSystem) GetAttributeMap() *AttributeMap {
-	return self.attributeMap
-}
-
-func (self *FileSystem) GetAttributeWord() *AttributeWord {
-	return self.attributeWord
-}
-
-func (self *FileSystem) GetWordGroupMap() *WordGroupMap {
-	return self.wordGroupMap
-}
-
-func (self *FileSystem) GetAttributeGroupWord() *AttributeGroupWord {
-	return self.attributeGroupWord
-}
-
-func (self *FileSystem) GetGroupWordDocument() *GroupWordDocument {
-	return self.groupWordDocument
-}
 
 const (
 	attributeMapFile   = "attmp.json"
@@ -91,7 +19,7 @@ const (
 )
 
 type Serialization struct {
-	filesystem *FileSystem
+	filesystem *filesystem.FileSystem
 }
 
 func (self *Serialization) getBar() string {
@@ -108,7 +36,7 @@ func (self *Serialization) getBar() string {
 
 }
 
-func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serialization {
+func (self *Serialization) CreateSerialization(filesystem *filesystem.FileSystem) *Serialization {
 
 	self.filesystem = filesystem
 

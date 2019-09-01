@@ -10,6 +10,20 @@ import (
 	"time"
 )
 
+func (self *GroupWordDocument) getBar() string {
+
+	var bar string
+
+	if runtime.GOOS == "windows" {
+		bar = "\\"
+	} else {
+		bar = "/"
+	}
+
+	return bar
+
+}
+
 type GroupWordDocument struct {
 	//groupWordDocument map[*uint]*bufio.Writer
 	//control           map[*uint]uint
@@ -19,22 +33,33 @@ type GroupWordDocument struct {
 	qtd               uint
 }
 
-func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
+const (
+	invertedFolder = "invertedindex"
+)
 
-	gw.someMapMutex = sync.RWMutex{}
-	gw.groupWordDocument = make(map[*uint]*collection.Set)
-	//gw.groupWordDocument = make(map[*uint]*bufio.Writer)
-	//gw.control = make(map[*uint]uint)
-	gw.qtd = 0
+func (self *GroupWordDocument) InitGroupWordDocument(fileSystemFolder string) *GroupWordDocument {
 
-	if runtime.GOOS == "windows" {
-		gw.folder = "C:/data2"
-	} else {
-		gw.folder = "/users/thiagorodrigues/documents/goteste"
-	}
+	self.someMapMutex = sync.RWMutex{}
+	self.groupWordDocument = make(map[*uint]*collection.Set)
+	self.folder = fileSystemFolder + self.getBar() + invertedFolder
 
-	if _, err := os.Stat(gw.folder); os.IsNotExist(err) {
-		os.Mkdir(gw.folder, 0777)
+	self.qtd = 0
+	/**
+			if runtime.GOOS == "windows" {
+				gw.folder = "C:/data2"
+			} else {
+				gw.folder = "/users/thiagorodrigues/documents/goteste"
+			}
+	**/
+	if _, err := os.Stat(self.folder); os.IsNotExist(err) {
+		os.Mkdir(self.folder, 0777)
+
+		if err != nil {
+			panic(err)
+		}
+
+		println("CREATE INDEX:", self.folder)
+
 	}
 
 	go func() {
@@ -45,11 +70,11 @@ func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
 
 			time.Sleep(time.Minute)
 
-			data = gw.Clone()
+			data = self.Clone()
 
 			for key, value := range data {
 
-				path := gw.folder + "//" + fmt.Sprintf("%v", key) + ".txt"
+				path := self.folder + self.getBar() + fmt.Sprintf("%v", key) + ".txt"
 
 				openedFile, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0666)
 				if err != nil {
@@ -80,14 +105,14 @@ func (gw *GroupWordDocument) InitGroupWordDocument() *GroupWordDocument {
 
 	}()
 
-	return gw
+	return self
 }
 
-func (gw *GroupWordDocument) createFile(name uint) {
+func (self *GroupWordDocument) createFile(name uint) {
 
 	//*bufio.Writer
 
-	path := gw.folder + "//" + fmt.Sprintf("%v", name) + ".txt"
+	path := self.folder + self.getBar() + fmt.Sprintf("%v", name) + ".txt"
 
 	file, err := os.Create(path)
 

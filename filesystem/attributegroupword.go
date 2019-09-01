@@ -31,21 +31,41 @@ func (attg *AttributeGroupWord) GetIdGroupOfAttribute(idAttribute *uint) []*uint
 
 }
 **/
-func (attg *AttributeGroupWord) AddGroupWordsOfAttribute(idAttribute, idGroup *uint) {
 
-	attg.someMapMutex.Lock()
+func (self *AttributeGroupWord) GeValue(idAttribute *uint) (*collection.Set, bool) {
 
-	idGroups, exist := attg.attributeGroupWord[idAttribute]
+	self.someMapMutex.Lock()
+	idGroups, exist := self.attributeGroupWord[idAttribute]
+	self.someMapMutex.Unlock()
+
+	return idGroups, exist
+
+}
+
+func (self *AttributeGroupWord) SetValue(idAttribute *uint, idGroups *collection.Set) {
+
+	self.someMapMutex.Lock()
+	self.attributeGroupWord[idAttribute] = idGroups
+	self.someMapMutex.Unlock()
+
+}
+
+func (self *AttributeGroupWord) AddGroupWordsOfAttribute(idAttribute, idGroup *uint) {
+
+	//self.someMapMutex.Lock()
+
+	idGroups, exist := self.GeValue(idAttribute)
 
 	if idGroups == nil || !exist {
 		idGroups = new(collection.Set).NewSet()
 		idGroups.Add(idGroup)
-		attg.attributeGroupWord[idAttribute] = idGroups
+		self.SetValue(idAttribute, idGroups)
+
 	} else {
 		idGroups.Add(idGroup)
 	}
 
-	attg.someMapMutex.Unlock()
+	//self.someMapMutex.Unlock()
 
 	//return idGroups
 
