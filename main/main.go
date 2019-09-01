@@ -34,6 +34,7 @@ func main() {
 	}
 
 	if _, err := os.Stat(workFolder); os.IsNotExist(err) {
+
 		err := os.Mkdir(workFolder, 0777)
 
 		if err != nil {
@@ -50,7 +51,7 @@ func main() {
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
 	//file, err := os.Open("C:/Users/Thago Rodrigues/go/src/speedup/dados.txt")
-	file, err := os.Open("speedup/dados.txt")
+	file, err := os.Open("C:\\teste\\arquivos-json-completo.txt") //os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
 	}

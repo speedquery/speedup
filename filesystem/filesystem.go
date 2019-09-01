@@ -15,6 +15,10 @@ FileSystem tem a função de fazer o gerenciamento de todos os indices
 criados
 */
 
+const (
+	inverted = "invertedindex"
+)
+
 type FileSystem struct {
 	wordmap            *WordMap
 	attributeMap       *AttributeMap
@@ -47,6 +51,7 @@ func (self *FileSystem) CreateFileSystem(nameFileSystem string, workFolder strin
 	self.Configuration["path"] = workFolder
 	self.Configuration["fileSystemFolder"] = workFolder + self.getBar() + nameFileSystem
 
+	self.createWorkFolder()
 	self.wordmap = new(WordMap).InitWordMap()
 	self.attributeMap = new(AttributeMap).IniAttributeMap()
 	self.attributeWord = new(AttributeWord).InitAttributeWord()
@@ -57,6 +62,37 @@ func (self *FileSystem) CreateFileSystem(nameFileSystem string, workFolder strin
 	self.serialization = new(Serialization).CreateSerialization(self)
 
 	return self
+}
+
+func (self *FileSystem) createWorkFolder() {
+
+	path := self.Configuration["fileSystemFolder"]
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+
+		err := os.Mkdir(path, 0777)
+
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+
+		path = path + self.getBar() + inverted
+
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+
+			os.Mkdir(path, 0777)
+
+			//if err != nil {
+			//	panic(err)
+			//}
+
+			println("CREATE INDEX:", path)
+		}
+	}
+
 }
 
 func (self *FileSystem) GetWordMap() *WordMap {
@@ -112,7 +148,6 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 
 	self.filesystem = filesystem
 
-	self.createWorkFolder()
 	self.DeSerealizeAttributeMap()
 	self.DeSerealizeWordMap()
 	self.DeSerealizeWordGroupMap()
@@ -136,13 +171,6 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 
 	return self
 
-}
-
-func (self *Serialization) createWorkFolder() {
-
-	if _, err := os.Stat(self.filesystem.Configuration["fileSystemFolder"]); os.IsNotExist(err) {
-		os.Mkdir(self.filesystem.Configuration["fileSystemFolder"], 0777)
-	}
 }
 
 func (self *Serialization) createFile(nameFile string) *os.File {

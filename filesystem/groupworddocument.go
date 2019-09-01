@@ -50,8 +50,11 @@ func (self *GroupWordDocument) InitGroupWordDocument(fileSystemFolder string) *G
 			} else {
 				gw.folder = "/users/thiagorodrigues/documents/goteste"
 			}
-	**/
+
 	if _, err := os.Stat(self.folder); os.IsNotExist(err) {
+
+		println(self.folder)
+
 		os.Mkdir(self.folder, 0777)
 
 		if err != nil {
@@ -61,6 +64,7 @@ func (self *GroupWordDocument) InitGroupWordDocument(fileSystemFolder string) *G
 		println("CREATE INDEX:", self.folder)
 
 	}
+	**/
 
 	go func() {
 
