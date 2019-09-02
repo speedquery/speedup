@@ -30,7 +30,7 @@ func main() {
 	if runtime.GOOS == "windows" {
 		workFolder = userHomeDir + "\\.speedquery"
 	} else {
-		workFolder = userHomeDir + "/speedquery2"
+		workFolder = userHomeDir + "/speedquery"
 	}
 
 	if _, err := os.Stat(workFolder); os.IsNotExist(err) {
@@ -50,8 +50,8 @@ func main() {
 	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	//file, err := os.Open("C:/Users/Thago Rodrigues/go/src/speedup/dados.txt")
-	file, err := os.Open("C:\\teste\\arquivos-json-completo.txt") //os.Open("speedup/dados.txt")
+	file, err := os.Open("speedup/dados.txt")
+	//file, err := os.Open("C:\\teste\\arquivos-json-completo.txt") //os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -65,28 +65,33 @@ func main() {
 	var wg sync.WaitGroup
 
 	var i uint = 0
-	for scanner.Scan() { // internally, it advances token based on sperator
-		//fmt.Println(scanner.Text())  // token in unicode-char
-		//fmt.Println(scanner.Bytes()) // token in bytes
-		id++
-		doc := new(document.Document).CreateDocument(id)
 
-		flat, _ := fs.FlattenString(scanner.Text(), "", fs.DotStyle)
-		doc.ToMap(flat)
-		wg.Add(1)
-		start := time.Now()
-		IndexWriter.IndexDocument(doc, func() { wg.Done() })
+	if false {
 
-		if i == 10000 {
-			log.Printf("Binomial took %s", time.Since(start))
-			//println("Valor de i", id)
-			i = 0
-		} else {
-			i++
+		for scanner.Scan() { // internally, it advances token based on sperator
+			//fmt.Println(scanner.Text())  // token in unicode-char
+			//fmt.Println(scanner.Bytes()) // token in bytes
+			id++
+			doc := new(document.Document).CreateDocument(id)
+
+			flat, _ := fs.FlattenString(scanner.Text(), "", fs.DotStyle)
+			doc.ToMap(flat)
+			wg.Add(1)
+			start := time.Now()
+			IndexWriter.IndexDocument(doc, func() { wg.Done() })
+
+			if i == 10000 {
+				log.Printf("Binomial took %s", time.Since(start))
+				//println("Valor de i", id)
+				i = 0
+			} else {
+				i++
+			}
+
+			//doc.DeleteMemory()
+			//println(doc.ToJson())
 		}
 
-		//doc.DeleteMemory()
-		//println(doc.ToJson())
 	}
 
 	wg.Wait()

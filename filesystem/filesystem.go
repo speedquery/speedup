@@ -120,10 +120,11 @@ func (self *FileSystem) GetGroupWordDocument() *GroupWordDocument {
 }
 
 const (
-	attributeMapFile   = "attmp.json"
-	wordMapFile        = "wordmp.json"
-	wordGroupMapFile   = "wordgpmp.json"
-	attributeGroupWord = "attgroupword-index.json"
+	attributeMapFile      = "attmp.json"
+	wordMapFile           = "wordmp.json"
+	wordGroupMapFile      = "wordgpmp.json"
+	attributeGroupWord    = "attgroupword-index.json"
+	groupWordDocumentFile = "groupworddoc-index.json"
 )
 
 type Serialization struct {
@@ -152,8 +153,9 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 	self.DeSerealizeWordMap()
 	self.DeSerealizeWordGroupMap()
 	self.DeSerealizeAttributeGroupWord()
+	self.DeSerealizeGroupWordDocument()
 
-	println("SUCESS: DESEREALLIZATION")
+	println("SUCESS: DESEREALLIZATION:", self.filesystem.Configuration["nameFileSystem"])
 
 	go func() {
 
@@ -165,6 +167,7 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 			go self.SerealizeWordMap()
 			go self.SerealizeWordGroupMap()
 			go self.SerealizeAttributeGroupWord()
+			go self.SerealizeGroupWordDocument()
 		}
 
 	}()
@@ -420,5 +423,68 @@ func (self *Serialization) DeSerealizeAttributeGroupWord() {
 	}
 
 	self.filesystem.GetAttributeGroupWord().SetNewMap(newMap)
+
+}
+
+func (self *Serialization) SerealizeGroupWordDocument() {
+
+	json := self.filesystem.GetGroupWordDocument().ToJson()
+
+	openedFile := self.createFile(groupWordDocumentFile)
+	bufferedWriter := bufio.NewWriter(openedFile)
+	bufferedWriter.WriteString(json)
+	bufferedWriter.Flush()
+	openedFile.Close()
+}
+
+func (self *Serialization) DeSerealizeGroupWordDocument() {
+
+	path := self.filesystem.Configuration["fileSystemFolder"] + self.getBar() + groupWordDocumentFile
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return
+	}
+
+	openedFile, err := os.OpenFile(path, os.O_RDONLY, 0666)
+
+	if err != nil {
+		panic(err)
+	}
+
+	scanner := bufio.NewScanner(openedFile)
+
+	var jsonString string
+
+	for scanner.Scan() {
+		jsonString = scanner.Text()
+	}
+
+	openedFile.Close()
+
+	fields := make(map[string]interface{})
+	json.Unmarshal([]byte(jsonString), &fields)
+
+	newMap := make(map[*uint]*collection.Set)
+
+	for key, _ := range fields {
+
+		temp, err := strconv.Atoi(key)
+
+		if err != nil {
+			panic(err)
+		}
+
+		idGroup := self.filesystem.GetWordGroupMap().GetPointer(uint(temp))
+
+		if idGroup == nil {
+			panic("PANIC: ID NÃO ENCONTRADO EM WordGroupMap")
+		}
+
+		data := new(collection.Set).NewSet()
+
+		newMap[idGroup] = data
+	}
+
+	self.filesystem.GetGroupWordDocument().SetNewMap(newMap)
 
 }

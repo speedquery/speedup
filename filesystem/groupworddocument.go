@@ -2,6 +2,7 @@ package filesystem
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"runtime"
@@ -37,12 +38,16 @@ const (
 	invertedFolder = "invertedindex"
 )
 
+func (self *GroupWordDocument) SetNewMap(newMap map[*uint]*collection.Set) *GroupWordDocument {
+	self.groupWordDocument = newMap
+	return self
+}
+
 func (self *GroupWordDocument) InitGroupWordDocument(fileSystemFolder string) *GroupWordDocument {
 
 	self.someMapMutex = sync.RWMutex{}
 	self.groupWordDocument = make(map[*uint]*collection.Set)
 	self.folder = fileSystemFolder + self.getBar() + invertedFolder
-
 	self.qtd = 0
 	/**
 			if runtime.GOOS == "windows" {
@@ -151,13 +156,13 @@ func (gw *GroupWordDocument) GetIdGroupWord(idDocument *uint) *collection.Set {
 }
 **/
 
-func (gw *GroupWordDocument) Clone() map[uint][]uint {
+func (self *GroupWordDocument) Clone() map[uint][]uint {
 
 	temp := make(map[uint][]uint)
 
-	gw.someMapMutex.Lock()
+	self.someMapMutex.Lock()
 
-	for key, value := range gw.groupWordDocument {
+	for key, value := range self.groupWordDocument {
 
 		if value.Size() > 0 {
 
@@ -168,65 +173,62 @@ func (gw *GroupWordDocument) Clone() map[uint][]uint {
 			}
 
 			temp[*key] = data
-			gw.groupWordDocument[key] = value.NewSet()
+			self.groupWordDocument[key] = value.NewSet()
 		}
 	}
 
-	gw.someMapMutex.Unlock()
+	self.someMapMutex.Unlock()
 
 	//println("Clonou")
 
 	return temp
 }
 
-func (gw *GroupWordDocument) Add(idGroup, idDocument *uint) (*collection.Set, bool) {
+func (self *GroupWordDocument) Add(idGroup, idDocument *uint) (*collection.Set, bool) {
 
-	data, exist := gw.Get(idGroup)
+	data, exist := self.Get(idGroup)
 
-	gw.someMapMutex.Lock()
+	self.someMapMutex.Lock()
 	if !exist || data == nil {
 
-		gw.createFile(*idGroup)
+		self.createFile(*idGroup)
 
 		data = new(collection.Set).NewSet()
 		data.Add(idDocument)
-		gw.groupWordDocument[idGroup] = data
+		self.groupWordDocument[idGroup] = data
 	} else {
 		data.Add(idDocument)
 	}
-	gw.someMapMutex.Unlock()
+	self.someMapMutex.Unlock()
 	return data, exist
 }
 
-func (gw *GroupWordDocument) Get(idGroup *uint) (*collection.Set, bool) {
-	gw.someMapMutex.Lock()
-	data, exist := gw.groupWordDocument[idGroup]
-	gw.someMapMutex.Unlock()
+func (self *GroupWordDocument) Get(idGroup *uint) (*collection.Set, bool) {
+	self.someMapMutex.Lock()
+	data, exist := self.groupWordDocument[idGroup]
+	self.someMapMutex.Unlock()
 
 	return data, exist
 }
 
-func (gw *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) {
+func (self *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) {
 
-	gw.Add(idGroup, idDocument)
+	self.Add(idGroup, idDocument)
 
 }
 
-/**
-func (gw *GroupWordDocument) ToJson() string {
+func (self *GroupWordDocument) ToJson() string {
 
-	temp := make(map[uint][]*uint)
+	temp := make(map[uint]bool)
 
-	for key, values := range gw.groupWordDocument {
+	self.someMapMutex.Lock()
 
-		words := make([]*uint, 0)
+	for key, _ := range self.groupWordDocument {
 
-		for key, _ := range values.GetSet() {
-			words = append(words, key)
-		}
-
-		temp[*key] = words
+		temp[*key] = true
 	}
+
+	self.someMapMutex.Unlock()
 
 	data, err := json.Marshal(temp)
 
@@ -238,4 +240,3 @@ func (gw *GroupWordDocument) ToJson() string {
 	return string(data)
 
 }
-**/
