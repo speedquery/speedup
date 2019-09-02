@@ -19,9 +19,14 @@ func (self *AttributeMap) IniAttributeMap() *AttributeMap {
 	return self
 }
 
-func (self *AttributeMap) SetNewMap(newMap map[string]*uint) *AttributeMap {
+func (self *AttributeMap) GetID() uint {
+	return self.id
+}
+
+func (self *AttributeMap) SetNewMap(id uint, newMap map[string]*uint) *AttributeMap {
 	self.someMapMutex.Lock()
 	self.attributeMap = newMap
+	self.id = id
 	self.someMapMutex.Unlock()
 	return self
 }
@@ -76,4 +81,24 @@ func (self *AttributeMap) ToJson() string {
 	self.someMapMutex.Unlock()
 
 	return string(data)
+}
+
+func (self *AttributeMap) ToJsonID() string {
+
+	self.someMapMutex.Lock()
+
+	maxID := make(map[string]uint)
+
+	maxID["maxid"] = self.GetID()
+
+	data, err := json.Marshal(maxID)
+
+	if err != nil {
+		panic(err)
+	}
+
+	self.someMapMutex.Unlock()
+
+	return string(data)
+
 }

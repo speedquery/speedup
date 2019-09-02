@@ -19,12 +19,17 @@ func (wd *WordGroupMap) IniWordGroupMap() *WordGroupMap {
 	return wd
 }
 
-func (self *WordGroupMap) SetNewMap(newMap map[string]*uint) *WordGroupMap {
+func (self *WordGroupMap) SetNewMap(id uint, newMap map[string]*uint) *WordGroupMap {
 	self.someMapMutex.Lock()
 	self.wordGroupMap = newMap
+	self.id = id
 	self.someMapMutex.Unlock()
 
 	return self
+}
+
+func (self *WordGroupMap) GetID() uint {
+	return self.id
 }
 
 func (self *WordGroupMap) GetPointer(id uint) *uint {
@@ -70,6 +75,25 @@ func (self *WordGroupMap) ToJson() string {
 	self.someMapMutex.Lock()
 
 	data, err := json.Marshal(self.wordGroupMap)
+
+	if err != nil {
+		panic(err)
+	}
+
+	self.someMapMutex.Unlock()
+
+	return string(data)
+}
+
+func (self *WordGroupMap) ToJsonID() string {
+
+	self.someMapMutex.Lock()
+
+	maxId := make(map[string]uint)
+
+	maxId["maxid"] = self.GetID()
+
+	data, err := json.Marshal(maxId)
 
 	if err != nil {
 		panic(err)

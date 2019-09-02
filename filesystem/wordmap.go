@@ -20,26 +20,31 @@ func (wd *WordMap) InitWordMap() *WordMap {
 	return wd
 }
 
-func (wd *WordMap) SetNewMap(newMap map[string]*uint) *WordMap {
+func (wd *WordMap) SetNewMap(id uint, newMap map[string]*uint) *WordMap {
 	wd.wordMap = newMap
+	wd.id = id
 	return wd
 }
 
+func (self *WordMap) GetID() uint {
+	return self.id
+}
+
 //AddWord Add new word in map
-func (wd *WordMap) AddWord(word string) *uint {
+func (self *WordMap) AddWord(word string) *uint {
 
-	wd.someMapMutex.Lock()
+	self.someMapMutex.Lock()
 
-	value, exist := wd.wordMap[word]
+	value, exist := self.wordMap[word]
 
 	if !exist {
-		wd.id++
-		newvalue := wd.id
+		self.id++
+		newvalue := self.id
 		value = &newvalue
-		wd.wordMap[word] = value
+		self.wordMap[word] = value
 	}
 
-	wd.someMapMutex.Unlock()
+	self.someMapMutex.Unlock()
 
 	return value
 }
@@ -55,6 +60,26 @@ func (wd *WordMap) ToJson() string {
 	}
 
 	wd.someMapMutex.Unlock()
+
+	return string(data)
+
+}
+
+func (self *WordMap) ToJsonID() string {
+
+	self.someMapMutex.Lock()
+
+	maxID := make(map[string]uint)
+
+	maxID["maxid"] = self.GetID()
+
+	data, err := json.Marshal(maxID)
+
+	if err != nil {
+		panic(err)
+	}
+
+	self.someMapMutex.Unlock()
 
 	return string(data)
 
