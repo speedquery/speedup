@@ -161,7 +161,7 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 
 		for {
 
-			time.Sleep(time.Minute)
+			time.Sleep(time.Second)
 
 			go self.SerealizeAttributeMap()
 			go self.SerealizeWordMap()

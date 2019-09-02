@@ -66,7 +66,7 @@ func main() {
 
 	var i uint = 0
 
-	if false {
+	if true {
 
 		for scanner.Scan() { // internally, it advances token based on sperator
 			//fmt.Println(scanner.Text())  // token in unicode-char
