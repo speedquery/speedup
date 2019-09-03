@@ -11,6 +11,7 @@ import (
 	fs "speedup/filesystem"
 	"speedup/wordprocess/stringprocess"
 	"strings"
+	"sync"
 )
 
 func GetBar() string {
@@ -97,7 +98,7 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 		return false
 	}
 
-	println(path)
+	//println(path)
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -116,59 +117,73 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 
 	if groupsDocuments.Size() > 0 {
 
+		var wg sync.WaitGroup
+
 		for idGroup, _ := range groupsDocuments.GetSet() {
+			wg.Add(1)
+			go func(idGroup string, onClose func()) {
 
-			path := self.fileSystem.Configuration["fileSystemFolder"] + GetBar() + inverted + GetBar() + fmt.Sprintf("%v", idGroup) + ".txt"
+				defer onClose()
 
-			file, err := os.Open(path)
-			if err != nil {
-				log.Fatal(err)
-			}
+				path := self.fileSystem.Configuration["fileSystemFolder"] + GetBar() + inverted + GetBar() + fmt.Sprintf("%v", idGroup) + ".txt"
 
-			set := new(collection.StrSet).NewSet()
-			scanner := bufio.NewScanner(file)
-
-			println("Grupo", idGroup)
-			for scanner.Scan() {
-				println("Documento", scanner.Text())
-				value := scanner.Text()
-				if value != fmt.Sprintf("%v", idDocument) {
-					set.Add(scanner.Text())
+				file, err := os.Open(path)
+				if err != nil {
+					log.Fatal(err)
 				}
 
-			}
+				set := new(collection.StrSet).NewSet()
+				scanner := bufio.NewScanner(file)
 
-			//apaga arquivo
-			err = os.Remove(path)
+				//println("Grupo", idGroup)
+				for scanner.Scan() {
+					//println("Documento", scanner.Text())
+					value := scanner.Text()
+					if value != fmt.Sprintf("%v", idDocument) {
+						set.Add(scanner.Text())
+					}
 
-			if err != nil {
-				panic(err)
-			}
+				}
 
-			//cria arquivo
-			_, err = os.Create(path)
+				if _, err := os.Stat(path); !os.IsNotExist(err) {
+					os.Remove(path)
 
-			if err != nil {
-				panic(err)
-			}
+					//if err != nil {
+					//	panic(err)
+					//}
+				}
 
-			//abre arquivo
-			openedFile, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0666)
-			if err != nil {
-				panic(err)
-			}
+				//cria arquivo
+				_, err = os.Create(path)
 
-			bufferedWriter := bufio.NewWriter(openedFile)
+				if err != nil {
+					panic(err)
+				}
 
-			for vl, _ := range set.GetSet() {
-				bufferedWriter.WriteString(vl + "\r\n")
-			}
+				//abre arquivo
+				openedFile, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0666)
+				if err != nil {
+					panic(err)
+				}
 
-			bufferedWriter.Flush()
-			openedFile.Close()
+				bufferedWriter := bufio.NewWriter(openedFile)
+
+				for vl, _ := range set.GetSet() {
+					bufferedWriter.WriteString(vl + "\r\n")
+				}
+
+				bufferedWriter.Flush()
+				openedFile.Close()
+			}(idGroup, func() { wg.Done() })
 
 		}
 
+	}
+
+	err = os.Remove(path)
+
+	if err != nil {
+		panic(err)
 	}
 
 	return true

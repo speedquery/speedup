@@ -106,6 +106,8 @@ func (self *GroupWordDocument) InitGroupWordDocument(fileSystemFolder string) *G
 
 			}
 
+			println("ESCREVEU GROUP DOCUMENT")
+
 			runtime.GC()
 
 			//println("Limpou memoria", len(tm))

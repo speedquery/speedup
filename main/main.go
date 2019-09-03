@@ -50,7 +50,7 @@ func main() {
 	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/teste2.txt")
+	file, err := os.Open("speedup/dados.txt")
 	//file, err := os.Open("C:\\teste\\arquivos-json-completo.txt") //os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -66,9 +66,16 @@ func main() {
 
 	var i uint = 0
 
-	//IndexWriter.DeleteDocument(1)
+	for i := 1; i < 200; i++ {
+		IndexWriter.DeleteDocument(uint(i))
+	}
 
-	if true {
+	wg.Wait()
+
+	elapsed := time.Since(start)
+	log.Printf("Binomial took %s", elapsed)
+
+	if false {
 
 		for scanner.Scan() { // internally, it advances token based on sperator
 			//fmt.Println(scanner.Text())  // token in unicode-char
@@ -92,14 +99,12 @@ func main() {
 			} else {
 				i++
 			}
-
 		}
-
 	}
 
 	wg.Wait()
-	elapsed := time.Since(start)
-	log.Printf("Binomial took %s", elapsed)
+	//elapsed := time.Since(start)
+	//log.Printf("Binomial took %s", elapsed)
 	println("Total de registro", id)
 
 	for {
