@@ -16,21 +16,11 @@ criados
 */
 
 const (
-	inverted = "invertedindex"
+	inverted      = "invertedindex"
+	groupdocument = "groupdocument"
 )
 
-type FileSystem struct {
-	wordmap            *WordMap
-	attributeMap       *AttributeMap
-	attributeWord      *AttributeWord
-	wordGroupMap       *WordGroupMap
-	attributeGroupWord *AttributeGroupWord
-	groupWordDocument  *GroupWordDocument
-	serialization      *Serialization
-	Configuration      map[string]string
-}
-
-func (self *FileSystem) getBar() string {
+func GetBar() string {
 
 	var bar string
 
@@ -44,12 +34,24 @@ func (self *FileSystem) getBar() string {
 
 }
 
+type FileSystem struct {
+	wordmap            *WordMap
+	attributeMap       *AttributeMap
+	attributeWord      *AttributeWord
+	wordGroupMap       *WordGroupMap
+	attributeGroupWord *AttributeGroupWord
+	groupWordDocument  *GroupWordDocument
+	documentGroupWord  *DocumentGroupWord
+	serialization      *Serialization
+	Configuration      map[string]string
+}
+
 func (self *FileSystem) CreateFileSystem(nameFileSystem string, workFolder string) *FileSystem {
 
 	self.Configuration = make(map[string]string)
 	self.Configuration["nameFileSystem"] = nameFileSystem
 	self.Configuration["path"] = workFolder
-	self.Configuration["fileSystemFolder"] = workFolder + self.getBar() + nameFileSystem
+	self.Configuration["fileSystemFolder"] = workFolder + GetBar() + nameFileSystem
 
 	self.createWorkFolder()
 	self.wordmap = new(WordMap).InitWordMap()
@@ -58,6 +60,7 @@ func (self *FileSystem) CreateFileSystem(nameFileSystem string, workFolder strin
 	self.wordGroupMap = new(WordGroupMap).IniWordGroupMap()
 	self.attributeGroupWord = new(AttributeGroupWord).InitAttributeGroupWord()
 	self.groupWordDocument = new(GroupWordDocument).InitGroupWordDocument(self.Configuration["fileSystemFolder"])
+	self.documentGroupWord = new(DocumentGroupWord).InitDocumentGroupWord(self.Configuration["fileSystemFolder"])
 
 	self.serialization = new(Serialization).CreateSerialization(self)
 
@@ -79,15 +82,23 @@ func (self *FileSystem) createWorkFolder() {
 
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 
-		path = path + self.getBar() + inverted
+		path := path + GetBar() + inverted
 
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 
 			os.Mkdir(path, 0777)
 
-			//if err != nil {
-			//	panic(err)
-			//}
+			println("CREATE INDEX:", path)
+		}
+	}
+
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+
+		path := path + GetBar() + groupdocument
+
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+
+			os.Mkdir(path, 0777)
 
 			println("CREATE INDEX:", path)
 		}
@@ -117,6 +128,10 @@ func (self *FileSystem) GetAttributeGroupWord() *AttributeGroupWord {
 
 func (self *FileSystem) GetGroupWordDocument() *GroupWordDocument {
 	return self.groupWordDocument
+}
+
+func (self *FileSystem) GetDocumentGroupWord() *DocumentGroupWord {
+	return self.documentGroupWord
 }
 
 const (
@@ -165,7 +180,7 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 
 		for {
 
-			time.Sleep(time.Second)
+			time.Sleep(time.Minute)
 
 			go self.SerealizeAttributeMap()
 			go self.SerealizeWordMap()
@@ -184,7 +199,7 @@ func (self *Serialization) createFile(nameFile string) *os.File {
 
 	//*bufio.Writer
 
-	path := self.filesystem.Configuration["fileSystemFolder"] + self.getBar() + nameFile
+	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + nameFile
 
 	file, err := os.Create(path)
 
@@ -219,7 +234,7 @@ func (self *Serialization) SerealizeAttributeMap() {
 
 func (self *Serialization) DeSerealizeAttributeMap() {
 
-	path := self.filesystem.Configuration["fileSystemFolder"] + self.getBar() + attributeMapFile
+	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + attributeMapFile
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return
@@ -279,7 +294,7 @@ func (self *Serialization) SerealizeWordMap() {
 }
 
 func (self *Serialization) GetLastID(fileName string) uint {
-	path := self.filesystem.Configuration["fileSystemFolder"] + self.getBar() + "id-" + fileName
+	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "id-" + fileName
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		panic("ERROR: NOT FOUND ID IN " + "id-" + fileName)
@@ -312,7 +327,7 @@ func (self *Serialization) GetLastID(fileName string) uint {
 
 func (self *Serialization) DeSerealizeWordMap() {
 
-	path := self.filesystem.Configuration["fileSystemFolder"] + self.getBar() + wordMapFile
+	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + wordMapFile
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return
@@ -369,7 +384,7 @@ func (self *Serialization) SerealizeWordGroupMap() {
 
 func (self *Serialization) DeSerealizeWordGroupMap() {
 
-	path := self.filesystem.Configuration["fileSystemFolder"] + self.getBar() + wordGroupMapFile
+	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + wordGroupMapFile
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return
@@ -418,17 +433,13 @@ func (self *Serialization) SerealizeAttributeGroupWord() {
 
 func (self *Serialization) DeSerealizeAttributeGroupWord() {
 
-	path := self.filesystem.Configuration["fileSystemFolder"] + self.getBar() + attributeGroupWord
+	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + attributeGroupWord
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return
 	}
 
 	openedFile, err := os.OpenFile(path, os.O_RDONLY, 0666)
-
-	if err != nil {
-		panic(err)
-	}
 
 	if err != nil {
 		panic(err)
@@ -496,7 +507,7 @@ func (self *Serialization) SerealizeGroupWordDocument() {
 
 func (self *Serialization) DeSerealizeGroupWordDocument() {
 
-	path := self.filesystem.Configuration["fileSystemFolder"] + self.getBar() + groupWordDocumentFile
+	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + groupWordDocumentFile
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return

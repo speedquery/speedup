@@ -66,6 +66,8 @@ func main() {
 
 	var i uint = 0
 
+	//IndexWriter.DeleteDocument(1)
+
 	if true {
 
 		for scanner.Scan() { // internally, it advances token based on sperator
@@ -78,7 +80,10 @@ func main() {
 			doc.ToMap(flat)
 			wg.Add(1)
 			start := time.Now()
+
+			//println(doc)
 			IndexWriter.IndexDocument(doc, func() { wg.Done() })
+			doc = doc.DeleteMemoryDocument()
 
 			if i == 10000 {
 				log.Printf("Binomial took %s", time.Since(start))
