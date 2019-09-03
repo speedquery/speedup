@@ -50,7 +50,7 @@ func main() {
 	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/dados.txt")
+	file, err := os.Open("speedup/teste.txt")
 	//file, err := os.Open("C:\\teste\\arquivos-json-completo.txt") //os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -66,11 +66,11 @@ func main() {
 
 	var i uint = 0
 
-	for i := 1; i < 200; i++ {
+	for i := 600; i < 1000; i++ {
 		IndexWriter.DeleteDocument(uint(i))
 	}
 
-	wg.Wait()
+	//wg.Wait()
 
 	elapsed := time.Since(start)
 	log.Printf("Binomial took %s", elapsed)

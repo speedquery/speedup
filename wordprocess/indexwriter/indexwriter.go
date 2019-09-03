@@ -120,7 +120,9 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 		var wg sync.WaitGroup
 
 		for idGroup, _ := range groupsDocuments.GetSet() {
+
 			wg.Add(1)
+
 			go func(idGroup string, onClose func()) {
 
 				defer onClose()
@@ -148,9 +150,9 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 				if _, err := os.Stat(path); !os.IsNotExist(err) {
 					os.Remove(path)
 
-					//if err != nil {
-					//	panic(err)
-					//}
+					if err != nil {
+						panic(err)
+					}
 				}
 
 				//cria arquivo
@@ -177,6 +179,8 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 			}(idGroup, func() { wg.Done() })
 
 		}
+
+		wg.Wait()
 
 	}
 
