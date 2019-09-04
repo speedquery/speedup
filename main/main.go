@@ -50,7 +50,7 @@ func main() {
 	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/teste.txt")
+	file, err := os.Open("speedup/dados.txt")
 	//file, err := os.Open("C:\\teste\\arquivos-json-completo.txt") //os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -66,16 +66,20 @@ func main() {
 
 	var i uint = 0
 
-	for i := 600; i < 1000; i++ {
-		IndexWriter.DeleteDocument(uint(i))
+	for i := 1; i < 10000; i++ {
+		//	IndexWriter.DeleteDocument(uint(i))
 	}
+
+	//dx := new(document.Document).CreateDocument(1)
+	//dx.ToMap(`{"nome":"tatiane rodrigues", "idade":30}`)
+	//IndexWriter.UpdateDocument(dx)
 
 	//wg.Wait()
 
-	elapsed := time.Since(start)
-	log.Printf("Binomial took %s", elapsed)
+	//elapsed := time.Since(start)
+	//log.Printf("Binomial took %s", elapsed)
 
-	if false {
+	if true {
 
 		for scanner.Scan() { // internally, it advances token based on sperator
 			//fmt.Println(scanner.Text())  // token in unicode-char
@@ -89,12 +93,12 @@ func main() {
 			start := time.Now()
 
 			//println(doc)
-			IndexWriter.IndexDocument(doc, func() { wg.Done() })
+			//IndexWriter.IndexDocument(doc)
+			IndexWriter.UpdateDocument(doc)
 			doc = doc.DeleteMemoryDocument()
 
 			if i == 10000 {
 				log.Printf("Binomial took %s", time.Since(start))
-				//println("Valor de i", id)
 				i = 0
 			} else {
 				i++
@@ -102,9 +106,9 @@ func main() {
 		}
 	}
 
-	wg.Wait()
-	//elapsed := time.Since(start)
-	//log.Printf("Binomial took %s", elapsed)
+	//wg.Wait()
+	elapsed := time.Since(start)
+	log.Printf("Binomial took %s", elapsed)
 	println("Total de registro", id)
 
 	for {

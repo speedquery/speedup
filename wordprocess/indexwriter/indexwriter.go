@@ -43,9 +43,9 @@ func (idx *IndexWriter) CreateIndex(fileSystem *fs.FileSystem) *IndexWriter {
 	return idx
 }
 
-func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
+func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 
-	defer onExit()
+	//defer onExit()
 	//println("Documento", document.GetID())
 
 	tmp := document.GetID()
@@ -90,6 +90,17 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document, onExit func()) {
 
 }
 
+func (self *IndexWriter) UpdateDocument(document *doc.Document) bool {
+
+	sucess := self.DeleteDocument(document.GetID())
+
+	if sucess {
+		self.IndexDocument(document)
+	}
+
+	return sucess
+}
+
 func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 
 	path := self.fileSystem.Configuration["fileSystemFolder"] + GetBar() + groupdocument + GetBar() + fmt.Sprintf("%v", idDocument) + ".txt"
@@ -106,7 +117,6 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 	}
 
 	scanner := bufio.NewScanner(file)
-
 	groupsDocuments := new(collection.StrSet).NewSet()
 
 	for scanner.Scan() {
@@ -129,9 +139,13 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 
 				path := self.fileSystem.Configuration["fileSystemFolder"] + GetBar() + inverted + GetBar() + fmt.Sprintf("%v", idGroup) + ".txt"
 
+				if _, err := os.Stat(path); os.IsNotExist(err) {
+					return
+				}
+
 				file, err := os.Open(path)
 				if err != nil {
-					log.Fatal(err)
+					panic(err)
 				}
 
 				set := new(collection.StrSet).NewSet()
@@ -148,6 +162,7 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 				}
 
 				if _, err := os.Stat(path); !os.IsNotExist(err) {
+
 					os.Remove(path)
 
 					if err != nil {
@@ -176,6 +191,7 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 
 				bufferedWriter.Flush()
 				openedFile.Close()
+
 			}(idGroup, func() { wg.Done() })
 
 		}
@@ -184,10 +200,14 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 
 	}
 
-	err = os.Remove(path)
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
 
-	if err != nil {
-		panic(err)
+		err = os.Remove(path)
+
+		if err != nil {
+			panic(err)
+		}
+
 	}
 
 	return true
