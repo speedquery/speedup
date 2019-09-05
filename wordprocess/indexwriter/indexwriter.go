@@ -3,7 +3,6 @@ package indexwriter
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"speedup/collection"
@@ -38,22 +37,20 @@ type IndexWriter struct {
 	fileSystem *fs.FileSystem
 }
 
-func (idx *IndexWriter) CreateIndex(fileSystem *fs.FileSystem) *IndexWriter {
-	idx.fileSystem = fileSystem
-	return idx
+func (self *IndexWriter) CreateIndex(fileSystem *fs.FileSystem) *IndexWriter {
+	self.fileSystem = fileSystem
+	return self
 }
 
-func (idx *IndexWriter) IndexDocument(document *doc.Document) {
-
-	//defer onExit()
-	//println("Documento", document.GetID())
+func (self *IndexWriter) IndexDocument(document *doc.Document, bulk bool) {
 
 	tmp := document.GetID()
 	var idDocument *uint = &tmp
+	var wg sync.WaitGroup
 
 	for attribute, value := range document.GetMap() {
 
-		idAttribute := idx.fileSystem.GetAttributeMap().AddAttribute(attribute)
+		idAttribute := self.fileSystem.GetAttributeMap().AddAttribute(attribute)
 
 		formatedValue := fmt.Sprintf("%v", value)
 		words := strings.Split(formatedValue, " ")
@@ -61,18 +58,37 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 		wordGroup := make([]string, 0) //list.New()
 
 		for _, word := range words {
+			//wg.Add(1)
 
 			newWord := stringprocess.ProcessWord(word)
-			idword := idx.fileSystem.GetWordMap().AddWord(newWord)
+			idword := self.fileSystem.GetWordMap().AddWord(newWord)
 			//idx.fileSystem.GetAttributeWord().AddWordsOfAttribute(idAttribute, idword)
 			wordGroup = append(wordGroup, fmt.Sprint(*idword))
 		}
 
-		idWordGroup := idx.fileSystem.GetWordGroupMap().AddAWordGroup(strings.Join(wordGroup, ""))
-		idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
-		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, idDocument)
-		idx.fileSystem.GetDocumentGroupWord().AddDocumentGroupWord(idDocument, idWordGroup)
+		idWordGroup := self.fileSystem.GetWordGroupMap().AddAWordGroup(strings.Join(wordGroup, ""))
+
+		wg.Add(1)
+		go func(idAttribute *uint, idWordGroup *uint, onClose func()) {
+			defer onClose()
+			self.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
+		}(idAttribute, idWordGroup, func() { wg.Done() })
+
+		wg.Add(1)
+		go func(idWordGroup, idDocument *uint, bulk bool, onClose func()) {
+			defer onClose()
+			self.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, idDocument, bulk)
+		}(idWordGroup, idDocument, bulk, func() { wg.Done() })
+
+		wg.Add(1)
+		go func(idDocument, idWordGroup *uint, bulk bool, onClose func()) {
+			defer onClose()
+			self.fileSystem.GetDocumentGroupWord().AddDocumentGroupWord(idDocument, idWordGroup, bulk)
+		}(idDocument, idWordGroup, bulk, func() { wg.Done() })
+
 	}
+
+	wg.Wait()
 
 	//document = document.DeleteMemoryDocument()
 	//document = nil
@@ -95,7 +111,7 @@ func (self *IndexWriter) UpdateDocument(document *doc.Document) bool {
 	sucess := self.DeleteDocument(document.GetID())
 
 	if sucess {
-		self.IndexDocument(document)
+		self.IndexDocument(document, false)
 	}
 
 	return sucess
@@ -109,11 +125,9 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 		return false
 	}
 
-	//println(path)
-
 	file, err := os.Open(path)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	scanner := bufio.NewScanner(file)
