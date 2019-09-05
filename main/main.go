@@ -68,6 +68,7 @@ func main() {
 
 	for i := 1; i < 10000; i++ {
 		//	IndexWriter.DeleteDocument(uint(i))
+		IndexWriter.DeleteDocumentBulk(uint(i))
 	}
 
 	//dx := new(document.Document).CreateDocument(1)
@@ -79,7 +80,7 @@ func main() {
 	//elapsed := time.Since(start)
 	//log.Printf("Binomial took %s", elapsed)
 
-	if true {
+	if false {
 
 		for scanner.Scan() { // internally, it advances token based on sperator
 			//fmt.Println(scanner.Text())  // token in unicode-char

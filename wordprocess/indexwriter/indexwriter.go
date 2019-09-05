@@ -12,6 +12,7 @@ import (
 	"speedup/wordprocess/stringprocess"
 	"strings"
 	"sync"
+	"time"
 )
 
 func GetBar() string {
@@ -34,16 +35,22 @@ const (
 )
 
 type IndexWriter struct {
-	//stopwords *stp.StopWords
-	fileSystem *fs.FileSystem
+	fileSystem            *fs.FileSystem
+	mapdeleteDocumentBulk *collection.SetUint
+	someMapMutex          sync.RWMutex
 }
 
-func (idx *IndexWriter) CreateIndex(fileSystem *fs.FileSystem) *IndexWriter {
-	idx.fileSystem = fileSystem
-	return idx
+func (self *IndexWriter) CreateIndex(fileSystem *fs.FileSystem) *IndexWriter {
+	self.someMapMutex = sync.RWMutex{}
+	self.fileSystem = fileSystem
+	self.mapdeleteDocumentBulk = new(collection.SetUint).NewSet()
+
+	go self.threadDeletDocumentBulk()
+
+	return self
 }
 
-func (idx *IndexWriter) IndexDocument(document *doc.Document) {
+func (self *IndexWriter) IndexDocument(document *doc.Document) {
 
 	//defer onExit()
 	//println("Documento", document.GetID())
@@ -53,7 +60,7 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 
 	for attribute, value := range document.GetMap() {
 
-		idAttribute := idx.fileSystem.GetAttributeMap().AddAttribute(attribute)
+		idAttribute := self.fileSystem.GetAttributeMap().AddAttribute(attribute)
 
 		formatedValue := fmt.Sprintf("%v", value)
 		words := strings.Split(formatedValue, " ")
@@ -63,15 +70,15 @@ func (idx *IndexWriter) IndexDocument(document *doc.Document) {
 		for _, word := range words {
 
 			newWord := stringprocess.ProcessWord(word)
-			idword := idx.fileSystem.GetWordMap().AddWord(newWord)
+			idword := self.fileSystem.GetWordMap().AddWord(newWord)
 			//idx.fileSystem.GetAttributeWord().AddWordsOfAttribute(idAttribute, idword)
 			wordGroup = append(wordGroup, fmt.Sprint(*idword))
 		}
 
-		idWordGroup := idx.fileSystem.GetWordGroupMap().AddAWordGroup(strings.Join(wordGroup, ""))
-		idx.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
-		idx.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, idDocument)
-		idx.fileSystem.GetDocumentGroupWord().AddDocumentGroupWord(idDocument, idWordGroup)
+		idWordGroup := self.fileSystem.GetWordGroupMap().AddAWordGroup(strings.Join(wordGroup, ""))
+		self.fileSystem.GetAttributeGroupWord().AddGroupWordsOfAttribute(idAttribute, idWordGroup)
+		self.fileSystem.GetGroupWordDocument().AddGroupWordDocument(idWordGroup, idDocument)
+		self.fileSystem.GetDocumentGroupWord().AddDocumentGroupWord(idDocument, idWordGroup)
 	}
 
 	//document = document.DeleteMemoryDocument()
@@ -99,6 +106,38 @@ func (self *IndexWriter) UpdateDocument(document *doc.Document) bool {
 	}
 
 	return sucess
+}
+
+func (self *IndexWriter) DeleteDocumentBulk(idDocument uint) {
+
+	self.someMapMutex.Lock()
+	self.mapdeleteDocumentBulk.Add(idDocument)
+	self.someMapMutex.Unlock()
+
+}
+
+func (self *IndexWriter) threadDeletDocumentBulk() {
+
+	println("DELETE BULK")
+
+	for {
+		time.Sleep(time.Minute)
+
+		documents := self.mapdeleteDocumentBulk.Clone()
+
+		if len(documents) > 0 {
+
+			for document, _ := range documents {
+				self.DeleteDocument(document)
+			}
+
+			println("DELETOU UM LOTE", len(documents))
+
+		} else {
+			println("=========== CONCLUIU INDEX BULK ===========")
+		}
+
+	}
 }
 
 func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
