@@ -3,6 +3,7 @@ package filesystem
 import (
 	"bufio"
 	"encoding/json"
+	"io/ioutil"
 	"os"
 	"runtime"
 	"speedup/collection"
@@ -140,6 +141,7 @@ const (
 	wordGroupMapFile      = "wordgpmp.json"
 	attributeGroupWord    = "attgroupword-index.json"
 	groupWordDocumentFile = "groupworddoc-index.json"
+	documentGroupWordFile = "docgroupword-index.json"
 )
 
 type Serialization struct {
@@ -164,11 +166,12 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 
 	self.filesystem = filesystem
 
-	self.DeSerealizeAttributeMap()
 	self.DeSerealizeWordMap()
+	self.DeSerealizeAttributeMap()
 	self.DeSerealizeWordGroupMap()
 	self.DeSerealizeAttributeGroupWord()
 	self.DeSerealizeGroupWordDocument()
+	self.DeSerealizeDocumentGroupWord()
 
 	//println(self.filesystem.GetAttributeMap().GetID())
 	//println(self.filesystem.GetWordMap().GetID())
@@ -187,6 +190,7 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 			go self.SerealizeWordGroupMap()
 			go self.SerealizeAttributeGroupWord()
 			go self.SerealizeGroupWordDocument()
+			go self.SerealizeDocumentGroupWord()
 		}
 
 	}()
@@ -329,7 +333,10 @@ func (self *Serialization) DeSerealizeWordMap() {
 
 	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + wordMapFile
 
+	println("aki", path)
+
 	if _, err := os.Stat(path); os.IsNotExist(err) {
+		println("não encontrou:", path)
 		return
 	}
 
@@ -339,18 +346,25 @@ func (self *Serialization) DeSerealizeWordMap() {
 		panic(err)
 	}
 
-	scanner := bufio.NewScanner(openedFile)
+	//scanner := bufio.NewScanner(openedFile)
 
-	var jsonString string
+	jsonString, err := ioutil.ReadAll(openedFile)
 
-	for scanner.Scan() {
-		jsonString = scanner.Text()
-	}
+	println(jsonString)
+
+	//var jsonString string
+
+	//for scanner.Scan() {
+	//	println(scanner.Text())
+	//	jsonString = scanner.Text()
+	//}
 
 	openedFile.Close()
 
 	fields := make(map[string]interface{})
 	json.Unmarshal([]byte(jsonString), &fields)
+
+	println("fields", len(fields))
 
 	newMap := make(map[string]*uint)
 	for key, value := range fields {
@@ -359,6 +373,10 @@ func (self *Serialization) DeSerealizeWordMap() {
 	}
 
 	lastID := self.GetLastID(wordMapFile)
+
+	println("newMap", len(newMap))
+	println("last id", lastID)
+
 	self.filesystem.GetWordMap().SetNewMap(lastID, newMap)
 
 }
@@ -554,5 +572,63 @@ func (self *Serialization) DeSerealizeGroupWordDocument() {
 	}
 
 	self.filesystem.GetGroupWordDocument().SetNewMap(newMap)
+
+}
+
+func (self *Serialization) SerealizeDocumentGroupWord() {
+
+	json := self.filesystem.GetDocumentGroupWord().ToJson()
+
+	openedFile := self.createFile(documentGroupWordFile)
+	bufferedWriter := bufio.NewWriter(openedFile)
+	bufferedWriter.WriteString(json)
+	bufferedWriter.Flush()
+	openedFile.Close()
+}
+
+func (self *Serialization) DeSerealizeDocumentGroupWord() {
+
+	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + documentGroupWordFile
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return
+	}
+
+	openedFile, err := os.OpenFile(path, os.O_RDONLY, 0666)
+
+	if err != nil {
+		panic(err)
+	}
+
+	scanner := bufio.NewScanner(openedFile)
+
+	var jsonString string
+
+	for scanner.Scan() {
+		jsonString = scanner.Text()
+	}
+
+	openedFile.Close()
+
+	fields := make(map[string]interface{})
+	json.Unmarshal([]byte(jsonString), &fields)
+
+	newMap := make(map[*uint]*collection.Set)
+
+	for key, _ := range fields {
+
+		temp, err := strconv.Atoi(key)
+
+		if err != nil {
+			panic(err)
+		}
+
+		idDocument := uint(temp)
+		data := new(collection.Set).NewSet()
+
+		newMap[&idDocument] = data
+	}
+
+	self.filesystem.GetDocumentGroupWord().SetNewMap(newMap)
 
 }

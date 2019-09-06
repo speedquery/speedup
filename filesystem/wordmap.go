@@ -20,10 +20,16 @@ func (wd *WordMap) InitWordMap() *WordMap {
 	return wd
 }
 
-func (wd *WordMap) SetNewMap(id uint, newMap map[string]*uint) *WordMap {
-	wd.wordMap = newMap
-	wd.id = id
-	return wd
+func (self *WordMap) SetNewMap(id uint, newMap map[string]*uint) *WordMap {
+	self.wordMap = newMap
+	self.id = id
+
+	println("ID WORD MAP:", self.id)
+	for k, v := range self.wordMap {
+		println(k, v)
+	}
+
+	return self
 }
 
 func (self *WordMap) GetID() uint {
@@ -49,17 +55,17 @@ func (self *WordMap) AddWord(word string) *uint {
 	return value
 }
 
-func (wd *WordMap) ToJson() string {
+func (self *WordMap) ToJson() string {
 
-	wd.someMapMutex.Lock()
+	self.someMapMutex.Lock()
 
-	data, err := json.Marshal(wd.wordMap)
+	data, err := json.Marshal(self.wordMap)
 
 	if err != nil {
 		panic(err)
 	}
 
-	wd.someMapMutex.Unlock()
+	self.someMapMutex.Unlock()
 
 	return string(data)
 

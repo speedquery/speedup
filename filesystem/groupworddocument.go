@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"speedup/collection"
+	"strings"
 	"sync"
 	"time"
 )
@@ -77,15 +78,13 @@ func (self *GroupWordDocument) InitGroupWordDocument(fileSystemFolder string) *G
 
 		for {
 
-			time.Sleep(time.Minute)
+			time.Sleep(time.Second * 60)
 
 			data = self.Clone()
-			go self.WriterInFile(data)
 
-			runtime.GC()
-
-			//println("Limpou memoria", len(tm))
-
+			if len(data) > 0 {
+				go self.WriterInFile(data)
+			}
 		}
 
 	}()
@@ -107,12 +106,15 @@ func (self *GroupWordDocument) WriterInFile(data map[uint][]uint) {
 		}
 
 		bufferedWriter := bufio.NewWriter(openedFile)
-		wg.Add(1)
+		//wg.Add(1)
 		for _, vl := range value {
+			bufferedWriter.WriteString(strings.TrimSpace(fmt.Sprintf("%v", vl)) + "\r\n")
+			/**
 			go func(vl string, onClose func()) {
 				defer onClose()
 				bufferedWriter.WriteString(vl + "\r\n")
 			}(fmt.Sprintf("%v", vl), func() { wg.Done() })
+			**/
 		}
 
 		wg.Wait()
@@ -246,8 +248,7 @@ func (self *GroupWordDocument) ToJson() string {
 	data, err := json.Marshal(temp)
 
 	if err != nil {
-		fmt.Println(err.Error())
-		return ""
+		panic(err)
 	}
 
 	return string(data)

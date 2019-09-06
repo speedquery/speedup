@@ -66,8 +66,10 @@ func main() {
 	var wg sync.WaitGroup
 	var i uint = 0
 
+	//IndexWriter.DeleteDocumentBulk(3)
+
 	//for i := 1; i < 10000; i++ {
-	//	IndexWriter.DeleteDocument(uint(i))
+	//
 	//}
 
 	//dx := new(document.Document).CreateDocument(1)
@@ -79,7 +81,7 @@ func main() {
 	//elapsed := time.Since(start)
 	//log.Printf("Binomial took %s", elapsed)
 
-	if true {
+	if false {
 
 		for scanner.Scan() { // internally, it advances token based on sperator
 			//fmt.Println(scanner.Text())  // token in unicode-char
@@ -93,7 +95,7 @@ func main() {
 			start := time.Now()
 
 			//println(doc)
-			IndexWriter.IndexDocument(doc, false)
+			IndexWriter.IndexDocument(doc, true)
 			//IndexWriter.UpdateDocument(doc)
 			doc = doc.DeleteMemoryDocument()
 

@@ -41,6 +41,10 @@ type IndexWriter struct {
 
 func (self *IndexWriter) CreateIndex(fileSystem *fs.FileSystem) *IndexWriter {
 	self.fileSystem = fileSystem
+	self.mapdeleteDocumentBulk = new(collection.SetUint).NewSet()
+
+	//go self.threadDeletDocumentBulk()
+
 	return self
 }
 
@@ -147,7 +151,6 @@ func (self *IndexWriter) threadDeletDocumentBulk() {
 		} else {
 			println("=========== CONCLUIU INDEX BULK ===========")
 		}
-
 	}
 }
 
@@ -181,7 +184,7 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 
 			wg.Add(1)
 
-			go func(idGroup string, onClose func()) {
+			go func(idGroup string, idDocument uint, onClose func()) {
 
 				defer onClose()
 
@@ -206,6 +209,9 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 					if value != fmt.Sprintf("%v", idDocument) {
 						set.Add(scanner.Text())
 					}
+					// else {
+					//	println("ENCONTROU:", idDocument, idGroup)
+					//}
 
 				}
 
@@ -240,7 +246,7 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 				bufferedWriter.Flush()
 				openedFile.Close()
 
-			}(idGroup, func() { wg.Done() })
+			}(idGroup, idDocument, func() { wg.Done() })
 
 		}
 

@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"speedup/collection"
+	"strings"
 	"sync"
 	"time"
 )
@@ -73,13 +74,13 @@ func (self *DocumentGroupWord) InitDocumentGroupWord(fileSystemFolder string) *D
 
 		for {
 
-			time.Sleep(time.Minute)
+			time.Sleep(time.Second * 62)
 
 			data = self.Clone()
-			go self.WriterInFile(data)
 
-			runtime.GC()
-
+			if len(data) > 0 {
+				go self.WriterInFile(data)
+			}
 		}
 
 	}()
@@ -89,7 +90,7 @@ func (self *DocumentGroupWord) InitDocumentGroupWord(fileSystemFolder string) *D
 
 func (self *DocumentGroupWord) WriterInFile(data map[uint][]uint) {
 
-	var wg sync.WaitGroup
+	//var wg sync.WaitGroup
 	self.someMapMutex.Lock()
 
 	for key, value := range data {
@@ -104,14 +105,16 @@ func (self *DocumentGroupWord) WriterInFile(data map[uint][]uint) {
 		bufferedWriter := bufio.NewWriter(openedFile)
 
 		for _, vl := range value {
-			wg.Add(1)
-			go func(value string, onClose func()) {
-				defer onClose()
-				bufferedWriter.WriteString(value + "\r\n")
-			}(fmt.Sprintf("%v", vl), func() { wg.Done() })
+			bufferedWriter.WriteString(strings.TrimSpace(fmt.Sprintf("%v", vl)) + "\r\n")
+			//wg.Add(1)
+			//go func(value string, onClose func()) {
+			//	defer onClose()
+			//	//bufferedWriter.WriteString(strings.TrimSpace(value) + "\r\n")
+			//}(fmt.Sprintf("%v", vl), func() { wg.Done() })
+
 		}
 
-		wg.Wait()
+		//wg.Wait()
 
 		bufferedWriter.Flush()
 		openedFile.Close()
