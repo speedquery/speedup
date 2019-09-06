@@ -80,33 +80,7 @@ func (self *GroupWordDocument) InitGroupWordDocument(fileSystemFolder string) *G
 			time.Sleep(time.Minute)
 
 			data = self.Clone()
-
-			for key, value := range data {
-
-				path := self.folder + self.getBar() + fmt.Sprintf("%v", key) + ".txt"
-
-				openedFile, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0666)
-				if err != nil {
-					panic(err)
-				}
-
-				bufferedWriter := bufio.NewWriter(openedFile)
-
-				for _, vl := range value {
-					bufferedWriter.WriteString(fmt.Sprintf("%v", vl) + "\r\n")
-				}
-
-				bufferedWriter.Flush()
-
-				//func(key uint, value []uint) {
-				//
-				//}(key, value)
-
-				openedFile.Close()
-
-			}
-
-			println("ESCREVEU GROUP DOCUMENT")
+			go self.WriterInFile(data)
 
 			runtime.GC()
 
@@ -117,6 +91,38 @@ func (self *GroupWordDocument) InitGroupWordDocument(fileSystemFolder string) *G
 	}()
 
 	return self
+}
+
+func (self *GroupWordDocument) WriterInFile(data map[uint][]uint) {
+
+	var wg sync.WaitGroup
+
+	for key, value := range data {
+
+		path := self.folder + self.getBar() + fmt.Sprintf("%v", key) + ".txt"
+
+		openedFile, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0666)
+		if err != nil {
+			panic(err)
+		}
+
+		bufferedWriter := bufio.NewWriter(openedFile)
+		wg.Add(1)
+		for _, vl := range value {
+			go func(vl string, onClose func()) {
+				defer onClose()
+				bufferedWriter.WriteString(vl + "\r\n")
+			}(fmt.Sprintf("%v", vl), func() { wg.Done() })
+		}
+
+		wg.Wait()
+
+		bufferedWriter.Flush()
+
+		openedFile.Close()
+
+	}
+
 }
 
 func (self *GroupWordDocument) createFile(name uint) {
@@ -213,9 +219,14 @@ func (self *GroupWordDocument) Get(idGroup *uint) (*collection.Set, bool) {
 	return data, exist
 }
 
-func (self *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint) {
+func (self *GroupWordDocument) AddGroupWordDocument(idGroup, idDocument *uint, bulk bool) {
 
 	self.Add(idGroup, idDocument)
+
+	if !bulk {
+		dados := self.Clone()
+		self.WriterInFile(dados)
+	}
 
 }
 
