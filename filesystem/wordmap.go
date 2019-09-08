@@ -24,11 +24,6 @@ func (self *WordMap) SetNewMap(id uint, newMap map[string]*uint) *WordMap {
 	self.wordMap = newMap
 	self.id = id
 
-	println("ID WORD MAP:", self.id)
-	for k, v := range self.wordMap {
-		println(k, v)
-	}
-
 	return self
 }
 

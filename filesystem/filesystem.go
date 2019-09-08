@@ -215,6 +215,35 @@ func (self *Serialization) createFile(nameFile string) *os.File {
 
 	return file
 }
+func (self *Serialization) GetLastID(fileName string) uint {
+	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "id-" + fileName
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		panic("ERROR: NOT FOUND ID IN " + "id-" + fileName)
+	}
+
+	openedFile, err := os.OpenFile(path, os.O_RDONLY, 0666)
+
+	if err != nil {
+		panic(err)
+	}
+
+	jsonString, err := ioutil.ReadAll(openedFile)
+
+	if err != nil {
+		panic(err)
+	}
+
+	openedFile.Close()
+
+	fields := make(map[string]uint)
+	json.Unmarshal([]byte(jsonString), &fields)
+
+	println(fields["maxid"], fileName)
+
+	return fields["maxid"]
+
+}
 
 func (self *Serialization) SerealizeAttributeMap() {
 
@@ -253,12 +282,10 @@ func (self *Serialization) DeSerealizeAttributeMap() {
 		panic(err)
 	}
 
-	scanner := bufio.NewScanner(openedFile)
+	jsonString, err := ioutil.ReadAll(openedFile)
 
-	var jsonString string
-
-	for scanner.Scan() {
-		jsonString = scanner.Text()
+	if err != nil {
+		panic(err)
 	}
 
 	openedFile.Close()
@@ -297,46 +324,11 @@ func (self *Serialization) SerealizeWordMap() {
 
 }
 
-func (self *Serialization) GetLastID(fileName string) uint {
-	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "id-" + fileName
-
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		panic("ERROR: NOT FOUND ID IN " + "id-" + fileName)
-	}
-
-	openedFile, err := os.OpenFile(path, os.O_RDONLY, 0666)
-
-	if err != nil {
-		panic(err)
-	}
-
-	scanner := bufio.NewScanner(openedFile)
-
-	var jsonString string
-
-	for scanner.Scan() {
-		jsonString = scanner.Text()
-	}
-
-	openedFile.Close()
-
-	fields := make(map[string]uint)
-	json.Unmarshal([]byte(jsonString), &fields)
-
-	println(fields["maxid"], fileName)
-
-	return fields["maxid"]
-
-}
-
 func (self *Serialization) DeSerealizeWordMap() {
 
 	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + wordMapFile
 
-	println("aki", path)
-
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		println("não encontrou:", path)
 		return
 	}
 
@@ -350,7 +342,9 @@ func (self *Serialization) DeSerealizeWordMap() {
 
 	jsonString, err := ioutil.ReadAll(openedFile)
 
-	println(jsonString)
+	if err != nil {
+		panic(err)
+	}
 
 	//var jsonString string
 
@@ -364,8 +358,6 @@ func (self *Serialization) DeSerealizeWordMap() {
 	fields := make(map[string]interface{})
 	json.Unmarshal([]byte(jsonString), &fields)
 
-	println("fields", len(fields))
-
 	newMap := make(map[string]*uint)
 	for key, value := range fields {
 		data := uint(value.(float64))
@@ -373,9 +365,6 @@ func (self *Serialization) DeSerealizeWordMap() {
 	}
 
 	lastID := self.GetLastID(wordMapFile)
-
-	println("newMap", len(newMap))
-	println("last id", lastID)
 
 	self.filesystem.GetWordMap().SetNewMap(lastID, newMap)
 
@@ -414,12 +403,10 @@ func (self *Serialization) DeSerealizeWordGroupMap() {
 		panic(err)
 	}
 
-	scanner := bufio.NewScanner(openedFile)
+	jsonString, err := ioutil.ReadAll(openedFile)
 
-	var jsonString string
-
-	for scanner.Scan() {
-		jsonString = scanner.Text()
+	if err != nil {
+		panic(err)
 	}
 
 	openedFile.Close()
@@ -463,12 +450,10 @@ func (self *Serialization) DeSerealizeAttributeGroupWord() {
 		panic(err)
 	}
 
-	scanner := bufio.NewScanner(openedFile)
+	jsonString, err := ioutil.ReadAll(openedFile)
 
-	var jsonString string
-
-	for scanner.Scan() {
-		jsonString = scanner.Text()
+	if err != nil {
+		panic(err)
 	}
 
 	openedFile.Close()
@@ -537,12 +522,10 @@ func (self *Serialization) DeSerealizeGroupWordDocument() {
 		panic(err)
 	}
 
-	scanner := bufio.NewScanner(openedFile)
+	jsonString, err := ioutil.ReadAll(openedFile)
 
-	var jsonString string
-
-	for scanner.Scan() {
-		jsonString = scanner.Text()
+	if err != nil {
+		panic(err)
 	}
 
 	openedFile.Close()
@@ -600,12 +583,10 @@ func (self *Serialization) DeSerealizeDocumentGroupWord() {
 		panic(err)
 	}
 
-	scanner := bufio.NewScanner(openedFile)
+	jsonString, err := ioutil.ReadAll(openedFile)
 
-	var jsonString string
-
-	for scanner.Scan() {
-		jsonString = scanner.Text()
+	if err != nil {
+		panic(err)
 	}
 
 	openedFile.Close()

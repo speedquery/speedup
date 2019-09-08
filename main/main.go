@@ -81,7 +81,7 @@ func main() {
 	//elapsed := time.Since(start)
 	//log.Printf("Binomial took %s", elapsed)
 
-	if false {
+	if true {
 
 		for scanner.Scan() { // internally, it advances token based on sperator
 			//fmt.Println(scanner.Text())  // token in unicode-char
