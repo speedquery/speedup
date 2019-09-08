@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"speedup/document"
 	fs "speedup/filesystem"
+	"speedup/query"
 	idx "speedup/wordprocess/indexwriter"
 	"sync"
 	"time"
@@ -50,8 +51,11 @@ func main() {
 	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	//query := new(query.Query).CreateQuery(fileSystem)
-	//query.Find("nome", "tatiane rodrigues")
+	elapsed := time.Since(start)
+	log.Printf("Binomial took %s", elapsed)
+
+	query := new(query.Query).CreateQuery(fileSystem)
+	query.Find("IDADE", "49")
 
 	file, err := os.Open("speedup/dados.txt")
 	//file, err := os.Open("C:\\teste\\arquivos-json-completo.txt") //os.Open("speedup/dados.txt")
@@ -84,7 +88,7 @@ func main() {
 	//elapsed := time.Since(start)
 	//log.Printf("Binomial took %s", elapsed)
 
-	if true {
+	if false {
 
 		for scanner.Scan() { // internally, it advances token based on sperator
 			//fmt.Println(scanner.Text())  // token in unicode-char
@@ -98,7 +102,7 @@ func main() {
 			start := time.Now()
 
 			//println(doc)
-			IndexWriter.IndexDocument(doc, false)
+			IndexWriter.IndexDocument(doc, true)
 			//IndexWriter.UpdateDocument(doc)
 			doc = doc.DeleteMemoryDocument()
 
@@ -112,12 +116,11 @@ func main() {
 	}
 
 	//wg.Wait()
-	elapsed := time.Since(start)
-	log.Printf("Binomial took %s", elapsed)
+
 	println("Total de registro", id)
 
-	for {
-		time.Sleep(time.Second)
-	}
+	//for {
+	//	time.Sleep(time.Second)
+	//}
 
 }

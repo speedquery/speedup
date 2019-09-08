@@ -6,9 +6,10 @@ import (
 )
 
 type AttributeMap struct {
-	someMapMutex sync.RWMutex
-	attributeMap map[string]*uint
-	id           uint
+	someMapMutex      sync.RWMutex
+	attributeMap      map[string]*uint
+	attributeMapPoint map[uint]*uint
+	id                uint
 }
 
 //NewWordMap create new wordmap
@@ -25,14 +26,25 @@ func (self *AttributeMap) GetID() uint {
 
 func (self *AttributeMap) SetNewMap(id uint, newMap map[string]*uint) *AttributeMap {
 	self.someMapMutex.Lock()
+	self.attributeMapPoint = make(map[uint]*uint)
 	self.attributeMap = newMap
 	self.id = id
+
+	func() {
+		for _, value := range self.attributeMap {
+			self.attributeMapPoint[*value] = value
+		}
+	}()
+
 	self.someMapMutex.Unlock()
 	return self
 }
 
 func (self *AttributeMap) GetPointer(id uint) *uint {
 
+	value, _ := self.attributeMapPoint[id]
+
+	/**
 	var point *uint = nil
 
 	self.someMapMutex.Lock()
@@ -44,8 +56,8 @@ func (self *AttributeMap) GetPointer(id uint) *uint {
 	}
 
 	self.someMapMutex.Unlock()
-
-	return point
+	*/
+	return value
 
 }
 

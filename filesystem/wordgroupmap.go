@@ -6,23 +6,33 @@ import (
 )
 
 type WordGroupMap struct {
-	wordGroupMap map[string]*uint
+	wordGroupMap      map[string]*uint
+	wordGroupMapPoint map[uint]*uint
+
 	id           uint
 	someMapMutex sync.RWMutex
 }
 
 //NewWordMap create new wordmap
-func (wd *WordGroupMap) IniWordGroupMap() *WordGroupMap {
-	wd.someMapMutex = sync.RWMutex{}
-	wd.wordGroupMap = make(map[string]*uint)
-	wd.id = 0
-	return wd
+func (self *WordGroupMap) IniWordGroupMap() *WordGroupMap {
+	self.someMapMutex = sync.RWMutex{}
+	self.wordGroupMap = make(map[string]*uint)
+	self.id = 0
+	return self
 }
 
 func (self *WordGroupMap) SetNewMap(id uint, newMap map[string]*uint) *WordGroupMap {
 	self.someMapMutex.Lock()
+	self.wordGroupMapPoint = make(map[uint]*uint)
 	self.wordGroupMap = newMap
 	self.id = id
+
+	func() {
+		for _, value := range self.wordGroupMap {
+			self.wordGroupMapPoint[*value] = value
+		}
+	}()
+
 	self.someMapMutex.Unlock()
 
 	return self
@@ -34,37 +44,56 @@ func (self *WordGroupMap) GetID() uint {
 
 func (self *WordGroupMap) GetPointer(id uint) *uint {
 
-	var point *uint = nil
+	self.someMapMutex.Lock()
+	value, _ := self.wordGroupMapPoint[id]
+	self.someMapMutex.Unlock()
+
+	return value
+
+	/**
+		var point *uint = nil
+
+		self.someMapMutex.Lock()
+
+		for _, value := range self.wordGroupMap {
+			if *value == id {
+				point = value
+			}
+		}
+
+		self.someMapMutex.Unlock()
+
+		return point
+	**/
+}
+
+func (self *WordGroupMap) GetAWordGroup(wordgroup string) *uint {
 
 	self.someMapMutex.Lock()
 
-	for _, value := range self.wordGroupMap {
-		if *value == id {
-			point = value
-		}
-	}
+	value, _ := self.wordGroupMap[wordgroup]
 
 	self.someMapMutex.Unlock()
 
-	return point
+	return value
 
 }
 
 //AddWord Add new word in map
-func (wd *WordGroupMap) AddAWordGroup(wordgroup string) *uint {
+func (self *WordGroupMap) AddAWordGroup(wordgroup string) *uint {
 
-	wd.someMapMutex.Lock()
+	self.someMapMutex.Lock()
 
-	value, exist := wd.wordGroupMap[wordgroup]
+	value, exist := self.wordGroupMap[wordgroup]
 
 	if !exist {
-		wd.id++
-		newvalue := wd.id
+		self.id++
+		newvalue := self.id
 		value = &newvalue
-		wd.wordGroupMap[wordgroup] = value
+		self.wordGroupMap[wordgroup] = value
 	}
 
-	wd.someMapMutex.Unlock()
+	self.someMapMutex.Unlock()
 
 	return value
 

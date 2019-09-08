@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"speedup/collection"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -166,12 +167,51 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 
 	self.filesystem = filesystem
 
-	self.DeSerealizeWordMap()
-	self.DeSerealizeAttributeMap()
-	self.DeSerealizeWordGroupMap()
-	self.DeSerealizeAttributeGroupWord()
-	self.DeSerealizeGroupWordDocument()
-	self.DeSerealizeDocumentGroupWord()
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func(onClose func()) {
+		defer onClose()
+		self.DeSerealizeWordMap()
+
+	}(func() { wg.Done() })
+
+	wg.Add(1)
+	go func(onClose func()) {
+		defer onClose()
+		self.DeSerealizeAttributeMap()
+	}(func() { wg.Done() })
+
+	wg.Add(1)
+	go func(onClose func()) {
+		defer onClose()
+		self.DeSerealizeWordGroupMap()
+	}(func() { wg.Done() })
+
+	wg.Wait()
+
+	wg.Add(1)
+	go func(onClose func()) {
+		defer onClose()
+		self.DeSerealizeAttributeGroupWord()
+
+	}(func() { wg.Done() })
+
+	wg.Add(1)
+	go func(onClose func()) {
+		defer onClose()
+		self.DeSerealizeGroupWordDocument()
+
+	}(func() { wg.Done() })
+
+	wg.Add(1)
+	go func(onClose func()) {
+		defer onClose()
+		self.DeSerealizeDocumentGroupWord()
+
+	}(func() { wg.Done() })
+
+	wg.Wait()
 
 	//println(self.filesystem.GetAttributeMap().GetID())
 	//println(self.filesystem.GetWordMap().GetID())
