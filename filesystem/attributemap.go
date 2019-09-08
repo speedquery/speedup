@@ -49,6 +49,16 @@ func (self *AttributeMap) GetPointer(id uint) *uint {
 
 }
 
+func (self *AttributeMap) GetAttribute(attribute string) *uint {
+
+	self.someMapMutex.Lock()
+	value, _ := self.attributeMap[attribute]
+	self.someMapMutex.Unlock()
+
+	return value
+
+}
+
 //AddWord Add new word in map
 func (self *AttributeMap) AddAttribute(attribute string) *uint {
 

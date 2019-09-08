@@ -50,7 +50,10 @@ func main() {
 	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/teste.txt")
+	//query := new(query.Query).CreateQuery(fileSystem)
+	//query.Find("nome", "tatiane rodrigues")
+
+	file, err := os.Open("speedup/dados.txt")
 	//file, err := os.Open("C:\\teste\\arquivos-json-completo.txt") //os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -95,7 +98,7 @@ func main() {
 			start := time.Now()
 
 			//println(doc)
-			IndexWriter.IndexDocument(doc, true)
+			IndexWriter.IndexDocument(doc, false)
 			//IndexWriter.UpdateDocument(doc)
 			doc = doc.DeleteMemoryDocument()
 
