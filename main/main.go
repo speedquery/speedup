@@ -18,8 +18,50 @@ func isMn(r rune) bool {
 	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
 }
 
-func main() {
+func difference(a, b []string) []string {
+	mb := make(map[string]struct{}, len(b))
+	for _, x := range b {
+		mb[x] = struct{}{}
+	}
+	var diff []string
+	for _, x := range a {
+		if _, found := mb[x]; found {
+			diff = append(diff, x)
+		}
+	}
+	return diff
+}
 
+func main() {
+	/**
+		list := make([][]string, 0)
+
+		arr := []string{"2", "4", "8"}
+		list = append(list, arr)
+
+		arr = []string{"3", "2", "6"}
+		list = append(list, arr)
+
+		arr = []string{"7", "6", "9"}
+		list = append(list, arr)
+
+		result := list[0]
+		for i := 1; i <= len(list)-1; i++ {
+
+			result = difference(result, list[i])
+
+		}
+
+		println("Total result: ", len(result))
+
+		for _, v := range result {
+			println(v)
+		}
+
+		if true {
+			return
+		}
+	**/
 	userHomeDir, err := os.UserHomeDir()
 
 	if err != nil {
@@ -51,13 +93,31 @@ func main() {
 	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
+	qr := new(query.Query).CreateQuery(fileSystem)
+
+	//qr.Find("IDADE", "49")
+
+	qr.AddEq(&query.Equal{
+		Key:   "IDADE",
+		Value: "20",
+	})
+
+	qr.AddEq(&query.Equal{
+		Key:   "CSEXOUSUA",
+		Value: "F",
+	})
+
+	qr.AddEq(&query.Equal{
+		Key:   "NQUANTCON",
+		Value: "1",
+	})
+
+	qr.FilterAnd(qr)
+
 	elapsed := time.Since(start)
 	log.Printf("Binomial took %s", elapsed)
 
-	query := new(query.Query).CreateQuery(fileSystem)
-	query.Find("IDADE", "49")
-
-	file, err := os.Open("speedup/dados.txt")
+	file, err := os.Open("speedup/teste2.txt")
 	//file, err := os.Open("C:\\teste\\arquivos-json-completo.txt") //os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -90,7 +150,8 @@ func main() {
 
 	if false {
 
-		for scanner.Scan() { // internally, it advances token based on sperator
+		for scanner.Scan() {
+			//internally, it advances token based on sperator
 			//fmt.Println(scanner.Text())  // token in unicode-char
 			//fmt.Println(scanner.Bytes()) // token in bytes
 			id++
@@ -102,7 +163,7 @@ func main() {
 			start := time.Now()
 
 			//println(doc)
-			IndexWriter.IndexDocument(doc, true)
+			IndexWriter.IndexDocument(doc, false)
 			//IndexWriter.UpdateDocument(doc)
 			doc = doc.DeleteMemoryDocument()
 

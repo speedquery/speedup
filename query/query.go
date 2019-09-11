@@ -3,12 +3,12 @@ package query
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"speedup/filesystem"
 	"speedup/wordprocess/stringprocess"
 	"strings"
+	"sync"
 )
 
 func GetBar() string {
@@ -27,6 +27,7 @@ func GetBar() string {
 
 type Query struct {
 	filesystem *filesystem.FileSystem
+	eqlist     []*Equal
 }
 
 func (self *Query) CreateQuery(filesystem *filesystem.FileSystem) *Query {
@@ -34,7 +35,80 @@ func (self *Query) CreateQuery(filesystem *filesystem.FileSystem) *Query {
 	return self
 }
 
-func (self *Query) Find(key, value string) {
+func (self *Query) AddEq(eq *Equal) *Query {
+
+	if self.eqlist == nil {
+		self.eqlist = make([]*Equal, 0)
+	}
+
+	self.eqlist = append(self.eqlist, eq)
+
+	return self
+
+}
+
+func (self *Query) FilterAnd(query *Query) *Query {
+
+	var wg sync.WaitGroup
+
+	//documents := new(collection.StrSet).NewSet()
+	list := make([][]string, 0)
+	for _, eq := range query.eqlist {
+
+		key := eq.Key
+		value := eq.Value
+
+		wg.Add(1)
+		go func(key, value string, onClose func()) {
+
+			defer onClose()
+
+			result := self.Find(key, value)
+
+			println("ass", result)
+
+			if len(result) > 0 {
+				list = append(list, result)
+			}
+
+		}(key, value, func() { wg.Done() })
+	}
+
+	wg.Wait()
+
+	result := list[0]
+	for i := 1; i <= len(list)-1; i++ {
+
+		result = difference(result, list[i])
+
+	}
+
+	println("tamanho: ", len(result))
+	//for _, vl := range result {
+	//	println(vl)
+	//}
+
+	return self
+
+}
+
+func difference(a, b []string) []string {
+	mb := make(map[string]struct{}, len(b))
+	for _, x := range b {
+		mb[x] = struct{}{}
+	}
+	var diff []string
+	for _, x := range a {
+		if _, found := mb[x]; found {
+			diff = append(diff, x)
+		}
+	}
+	return diff
+}
+
+func (self *Query) Find(key, value string) []string {
+
+	result := make([]string, 0)
 
 	idAttribute := self.filesystem.GetAttributeMap().GetAttribute(key)
 
@@ -54,7 +128,7 @@ func (self *Query) Find(key, value string) {
 		wordGroup = append(wordGroup, fmt.Sprint(*idword))
 	}
 
-	idWordGroup := self.filesystem.GetWordGroupMap().AddAWordGroup(strings.Join(wordGroup, ""))
+	idWordGroup := self.filesystem.GetWordGroupMap().GetAWordGroup(strings.Join(wordGroup, ""))
 
 	if idWordGroup == nil {
 		panic("ERRO ID GROUP NAO ENCONTRADO")
@@ -65,18 +139,26 @@ func (self *Query) Find(key, value string) {
 	file, err := os.Open(path)
 	//file, err := os.Open("C:\\teste\\arquivos-json-completo.txt") //os.Open("speedup/dados.txt")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 
+	i := 0
 	for scanner.Scan() {
-		println(scanner.Text())
+		i++
+		rs := scanner.Text()
+		result = append(result, rs)
+		//println(scanner.Text())
 	}
+
+	//println("total", i)
 	//println(*idAttribute, *idWordGroup)
 
 	//file, err := os.Open("speedup/teste2.txt")
+
+	return result
 
 }

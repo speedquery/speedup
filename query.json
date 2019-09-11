@@ -1,0 +1,9 @@
+{
+    "contas_medicas": {
+        "max":100,
+        "query": {
+            "eq": {
+            }
+        }
+    }
+}
