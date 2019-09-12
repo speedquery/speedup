@@ -98,13 +98,18 @@ func main() {
 	//qr.Find("IDADE", "49")
 
 	qr.AddEq(&query.Equal{
+		Key:   "CDSERVICO",
+		Value: "60000694",
+	})
+
+	qr.AddEq(&query.Equal{
 		Key:   "IDADE",
 		Value: "20",
 	})
 
 	qr.AddEq(&query.Equal{
 		Key:   "CSEXOUSUA",
-		Value: "F",
+		Value: "M",
 	})
 
 	qr.AddEq(&query.Equal{

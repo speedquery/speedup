@@ -47,7 +47,7 @@ func (self *Query) AddEq(eq *Equal) *Query {
 
 }
 
-func (self *Query) FilterAnd(query *Query) *Query {
+func (self *Query) FilterAnd(query *Query) []string {
 
 	var wg sync.WaitGroup
 
@@ -65,7 +65,7 @@ func (self *Query) FilterAnd(query *Query) *Query {
 
 			result := self.Find(key, value)
 
-			println("ass", result)
+			//println("ass", len(result))
 
 			if len(result) > 0 {
 				list = append(list, result)
@@ -81,6 +81,8 @@ func (self *Query) FilterAnd(query *Query) *Query {
 
 		result = difference(result, list[i])
 
+		println(len(result), i)
+
 	}
 
 	println("tamanho: ", len(result))
@@ -88,7 +90,7 @@ func (self *Query) FilterAnd(query *Query) *Query {
 	//	println(vl)
 	//}
 
-	return self
+	return result
 
 }
 
