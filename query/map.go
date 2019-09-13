@@ -1,6 +1,6 @@
 package query
 
-type Equal struct {
+type Map struct {
 	Key   string
 	Value string
 }

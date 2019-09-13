@@ -33,35 +33,7 @@ func difference(a, b []string) []string {
 }
 
 func main() {
-	/**
-		list := make([][]string, 0)
 
-		arr := []string{"2", "4", "8"}
-		list = append(list, arr)
-
-		arr = []string{"3", "2", "6"}
-		list = append(list, arr)
-
-		arr = []string{"7", "6", "9"}
-		list = append(list, arr)
-
-		result := list[0]
-		for i := 1; i <= len(list)-1; i++ {
-
-			result = difference(result, list[i])
-
-		}
-
-		println("Total result: ", len(result))
-
-		for _, v := range result {
-			println(v)
-		}
-
-		if true {
-			return
-		}
-	**/
 	userHomeDir, err := os.UserHomeDir()
 
 	if err != nil {
@@ -88,36 +60,35 @@ func main() {
 	println("OS:", runtime.GOOS, "/", runtime.GOARCH)
 	println("GLOBAL PATH:", workFolder)
 
-	start := time.Now()
 	//cria o sistema de arquivos que vai gerenciar os indices
 	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
 	qr := new(query.Query).CreateQuery(fileSystem)
 
-	//qr.Find("IDADE", "49")
-
-	qr.AddEq(&query.Equal{
-		Key:   "CDSERVICO",
-		Value: "60000694",
-	})
-
-	qr.AddEq(&query.Equal{
+	condiction1 := new(query.EQ).AddEQ(&query.Map{
 		Key:   "IDADE",
 		Value: "20",
 	})
 
-	qr.AddEq(&query.Equal{
+	condiction2 := new(query.EQ).AddEQ(&query.Map{
 		Key:   "CSEXOUSUA",
 		Value: "M",
-	})
-
-	qr.AddEq(&query.Equal{
+	}).AddEQ(&query.Map{
 		Key:   "NQUANTCON",
 		Value: "1",
 	})
 
-	qr.FilterAnd(qr)
+	condictionOR := new(query.OR)
+
+	condictionOR.AddOR(condiction2).AddOR(condiction1)
+	start := time.Now()
+
+	//rs := qr.FilterAnd(condiction)
+	//println("Resultado:", len(rs))
+
+	rs := qr.FilterOr(condictionOR)
+	println("Resultado:", len(rs))
 
 	elapsed := time.Since(start)
 	log.Printf("Binomial took %s", elapsed)

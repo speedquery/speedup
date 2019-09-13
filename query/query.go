@@ -27,7 +27,6 @@ func GetBar() string {
 
 type Query struct {
 	filesystem *filesystem.FileSystem
-	eqlist     []*Equal
 }
 
 func (self *Query) CreateQuery(filesystem *filesystem.FileSystem) *Query {
@@ -35,25 +34,31 @@ func (self *Query) CreateQuery(filesystem *filesystem.FileSystem) *Query {
 	return self
 }
 
-func (self *Query) AddEq(eq *Equal) *Query {
+func (self *Query) FilterOr(query *OR) []string {
 
-	if self.eqlist == nil {
-		self.eqlist = make([]*Equal, 0)
+	listEq := query.GetList()
+
+	var result []string
+	for _, value := range listEq {
+
+		result = self.FilterAnd(value)
+
+		if len(result) > 0 {
+			break
+		}
+
 	}
 
-	self.eqlist = append(self.eqlist, eq)
-
-	return self
+	return result
 
 }
 
-func (self *Query) FilterAnd(query *Query) []string {
+func (self *Query) FilterAnd(query *EQ) []string {
 
 	var wg sync.WaitGroup
 
-	//documents := new(collection.StrSet).NewSet()
 	list := make([][]string, 0)
-	for _, eq := range query.eqlist {
+	for _, eq := range query.GetList() {
 
 		key := eq.Key
 		value := eq.Value
@@ -64,8 +69,6 @@ func (self *Query) FilterAnd(query *Query) []string {
 			defer onClose()
 
 			result := self.Find(key, value)
-
-			//println("ass", len(result))
 
 			if len(result) > 0 {
 				list = append(list, result)
@@ -81,14 +84,7 @@ func (self *Query) FilterAnd(query *Query) []string {
 
 		result = difference(result, list[i])
 
-		println(len(result), i)
-
 	}
-
-	println("tamanho: ", len(result))
-	//for _, vl := range result {
-	//	println(vl)
-	//}
 
 	return result
 
