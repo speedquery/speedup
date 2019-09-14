@@ -59,6 +59,7 @@ func (self *Query) FilterAnd(query Operators) []string {
 	var wg sync.WaitGroup
 
 	list := make([][]string, 0)
+
 	for _, eq := range query.GetList() {
 
 		key := eq.Key
