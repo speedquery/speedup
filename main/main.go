@@ -98,7 +98,20 @@ func main() {
 
 	qr := new(query.Query).CreateQuery(fileSystem)
 
-	qr.FindNotEQ("nome", "thiago luiz")
+	qr.FindNotEQ("idade", "30")
+
+	condiction := new(query.NotEQ).AddEQ(&query.Map{
+		Key:   "nome",
+		Value: "thiago luiz",
+	})
+
+	rs := qr.FilterAnd(condiction)
+
+	println("****************")
+
+	for _, v := range rs {
+		println(v)
+	}
 
 	if true {
 		return

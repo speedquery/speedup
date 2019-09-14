@@ -24,15 +24,8 @@ func TestSearchAnd(t *testing.T) {
 		Value: "32",
 	})
 
-	//condiction2 := new(query.EQ)
-
-	//condictionOR := new(query.OR)
-
-	//condictionOR.AddOR(condiction2).AddOR(condiction1)
-	//start := time.Now()
-
 	rs := qr.FilterAnd(condiction)
-	//println("Resultado:", len(rs))
+
 
 	//rs := qr.FilterOr(condictionOR)
 	if len(rs) != 1 {

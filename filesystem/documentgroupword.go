@@ -49,9 +49,9 @@ func (self *DocumentGroupWord) SetNewMap(newMap map[*uint]*collection.Set) *Docu
 	return self
 }
 
-func (self *DocumentGroupWord) GetMapIgnoreKeys(keys []*uint) map[*uint]*collection.Set {
+func (self *DocumentGroupWord) GetMapIgnoreKeys(keys []uint) map[uint]*uint {
 
-	cloned := self.documentGroupWord
+	cloned := self.documents
 
 	for _, value := range keys {
 		delete(cloned, value)
@@ -65,6 +65,7 @@ func (self *DocumentGroupWord) InitDocumentGroupWord(fileSystemFolder string) *D
 
 	self.someMapMutex = sync.RWMutex{}
 	self.documentGroupWord = make(map[*uint]*collection.Set)
+	self.documents = make(map[uint]*uint)
 	self.folder = fileSystemFolder + self.getBar() + groupdocument
 	self.qtd = 0
 	/**
@@ -215,11 +216,11 @@ func (self *DocumentGroupWord) Add(idGroup, idDocument *uint) (*collection.Set, 
 	if !exist || data == nil {
 
 		self.createFile(*idGroup)
-		self.documents[*idGroup] = idGroup
 
 		data = new(collection.Set).NewSet()
 		data.Add(idDocument)
 		self.documentGroupWord[idGroup] = data
+		self.documents[*idGroup] = idGroup
 	} else {
 		data.Add(idDocument)
 	}
