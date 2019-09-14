@@ -15,6 +15,7 @@ func GetBar() string {
 
 	var bar string
 
+	print(bar == nil)
 	if runtime.GOOS == "windows" {
 		bar = "\\"
 	} else {
