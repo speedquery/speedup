@@ -27,23 +27,44 @@ func (self *DocumentGroupWord) getBar() string {
 }
 
 type DocumentGroupWord struct {
-	//groupWordDocument map[*uint]*bufio.Writer
+	//documentGroupWord map[*uint]*bufio.Writer
 	//control           map[*uint]uint
-	groupWordDocument map[*uint]*collection.Set
+	documentGroupWord map[*uint]*collection.Set
+	documents         map[uint]*uint
 	someMapMutex      sync.RWMutex
 	folder            string
 	qtd               uint
 }
 
 func (self *DocumentGroupWord) SetNewMap(newMap map[*uint]*collection.Set) *DocumentGroupWord {
-	self.groupWordDocument = newMap
+	self.documentGroupWord = newMap
+	self.documents = make(map[uint]*uint)
+
+	func() {
+		for key, _ := range self.documentGroupWord {
+			self.documents[*key] = key
+		}
+	}()
+
 	return self
+}
+
+func (self *DocumentGroupWord) GetMapIgnoreKeys(keys []*uint) map[*uint]*collection.Set {
+
+	cloned := self.documentGroupWord
+
+	for _, value := range keys {
+		delete(cloned, value)
+	}
+
+	return cloned
+
 }
 
 func (self *DocumentGroupWord) InitDocumentGroupWord(fileSystemFolder string) *DocumentGroupWord {
 
 	self.someMapMutex = sync.RWMutex{}
-	self.groupWordDocument = make(map[*uint]*collection.Set)
+	self.documentGroupWord = make(map[*uint]*collection.Set)
 	self.folder = fileSystemFolder + self.getBar() + groupdocument
 	self.qtd = 0
 	/**
@@ -106,12 +127,6 @@ func (self *DocumentGroupWord) WriterInFile(data map[uint][]uint) {
 
 		for _, vl := range value {
 			bufferedWriter.WriteString(strings.TrimSpace(fmt.Sprintf("%v", vl)) + "\r\n")
-			//wg.Add(1)
-			//go func(value string, onClose func()) {
-			//	defer onClose()
-			//	//bufferedWriter.WriteString(strings.TrimSpace(value) + "\r\n")
-			//}(fmt.Sprintf("%v", vl), func() { wg.Done() })
-
 		}
 
 		//wg.Wait()
@@ -156,9 +171,9 @@ func (self *DocumentGroupWord) createFile(name uint) {
 }
 
 /**
-func (gw *GroupWordDocument) GetIdGroupWord(idDocument *uint) *collection.Set {
+func (gw *documentGroupWord) GetIdGroupWord(idDocument *uint) *collection.Set {
 
-	idGroups := gw.groupWordDocument[idDocument]
+	idGroups := gw.documentGroupWord[idDocument]
 	return idGroups
 
 }
@@ -170,7 +185,7 @@ func (self *DocumentGroupWord) Clone() map[uint][]uint {
 
 	self.someMapMutex.Lock()
 
-	for key, value := range self.groupWordDocument {
+	for key, value := range self.documentGroupWord {
 
 		if value.Size() > 0 {
 
@@ -181,7 +196,7 @@ func (self *DocumentGroupWord) Clone() map[uint][]uint {
 			}
 
 			temp[*key] = data
-			self.groupWordDocument[key] = value.NewSet()
+			self.documentGroupWord[key] = value.NewSet()
 		}
 	}
 
@@ -200,10 +215,11 @@ func (self *DocumentGroupWord) Add(idGroup, idDocument *uint) (*collection.Set, 
 	if !exist || data == nil {
 
 		self.createFile(*idGroup)
+		self.documents[*idGroup] = idGroup
 
 		data = new(collection.Set).NewSet()
 		data.Add(idDocument)
-		self.groupWordDocument[idGroup] = data
+		self.documentGroupWord[idGroup] = data
 	} else {
 		data.Add(idDocument)
 	}
@@ -213,7 +229,7 @@ func (self *DocumentGroupWord) Add(idGroup, idDocument *uint) (*collection.Set, 
 
 func (self *DocumentGroupWord) Get(idGroup *uint) (*collection.Set, bool) {
 	self.someMapMutex.Lock()
-	data, exist := self.groupWordDocument[idGroup]
+	data, exist := self.documentGroupWord[idGroup]
 	self.someMapMutex.Unlock()
 
 	return data, exist
@@ -236,7 +252,7 @@ func (self *DocumentGroupWord) ToJson() string {
 
 	self.someMapMutex.Lock()
 
-	for key, _ := range self.groupWordDocument {
+	for key, _ := range self.documentGroupWord {
 
 		temp[*key] = true
 	}

@@ -13,6 +13,16 @@ type WordGroupMap struct {
 	someMapMutex sync.RWMutex
 }
 
+func (self *WordGroupMap) GetList() map[string]*uint {
+	return self.wordGroupMap
+}
+
+func (self *WordGroupMap) GetListIgnoredKey(key string) map[string]*uint {
+	clone := self.wordGroupMap
+	delete(clone, key)
+	return clone
+}
+
 //NewWordMap create new wordmap
 func (self *WordGroupMap) IniWordGroupMap() *WordGroupMap {
 	self.someMapMutex = sync.RWMutex{}

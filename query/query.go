@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"speedup/filesystem"
 	"speedup/wordprocess/stringprocess"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -15,7 +16,6 @@ func GetBar() string {
 
 	var bar string
 
-	print(bar == nil)
 	if runtime.GOOS == "windows" {
 		bar = "\\"
 	} else {
@@ -69,7 +69,7 @@ func (self *Query) FilterAnd(query *EQ) []string {
 
 			defer onClose()
 
-			result := self.Find(key, value)
+			result := self.FindEQ(key, value)
 
 			if len(result) > 0 {
 				list = append(list, result)
@@ -80,14 +80,18 @@ func (self *Query) FilterAnd(query *EQ) []string {
 
 	wg.Wait()
 
-	result := list[0]
-	for i := 1; i <= len(list)-1; i++ {
+	if len(list) > 0 {
+		result := list[0]
+		for i := 1; i <= len(list)-1; i++ {
 
-		result = difference(result, list[i])
+			result = difference(result, list[i])
 
+		}
+
+		return result
+	} else {
+		return nil
 	}
-
-	return result
 
 }
 
@@ -105,7 +109,7 @@ func difference(a, b []string) []string {
 	return diff
 }
 
-func (self *Query) Find(key, value string) []string {
+func (self *Query) FindEQ(key, value string) []string {
 
 	result := make([]string, 0)
 
@@ -130,7 +134,7 @@ func (self *Query) Find(key, value string) []string {
 	idWordGroup := self.filesystem.GetWordGroupMap().GetAWordGroup(strings.Join(wordGroup, ""))
 
 	if idWordGroup == nil {
-		panic("ERRO ID GROUP NAO ENCONTRADO")
+		return nil
 	}
 
 	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedindex" + GetBar() + fmt.Sprintf("%v", *idWordGroup) + ".txt"
@@ -153,10 +157,64 @@ func (self *Query) Find(key, value string) []string {
 		//println(scanner.Text())
 	}
 
-	//println("total", i)
-	//println(*idAttribute, *idWordGroup)
+	return result
 
-	//file, err := os.Open("speedup/teste2.txt")
+}
+
+func (self *Query) FindNotEQ(key, value string) []string {
+
+	result := make([]string, 0)
+
+	idAttribute := self.filesystem.GetAttributeMap().GetAttribute(key)
+
+	println("id atributo ", *idAttribute)
+
+	if idAttribute == nil {
+		panic("ATRIBUTO NAO ENCONTRADO")
+	}
+
+	words := strings.Split(value, " ")
+
+	wordGroup := make([]string, 0) //list.New()
+
+	for _, word := range words {
+		//wg.Add(1)
+
+		newWord := stringprocess.ProcessWord(word)
+		idword := self.filesystem.GetWordMap().AddWord(newWord)
+		wordGroup = append(wordGroup, fmt.Sprint(*idword))
+	}
+
+	strWordGroup := strings.Join(wordGroup, "")
+
+	idWordGroup := self.filesystem.GetWordGroupMap().GetAWordGroup(strWordGroup)
+
+	if idWordGroup == nil {
+		return nil
+	}
+
+	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedindex" + GetBar() + fmt.Sprintf("%v", *idWordGroup) + ".txt"
+
+	file, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	ignoredDocuments := make([]*uint, 0)
+	for scanner.Scan() {
+		rs, err := strconv.Atoi(scanner.Text())
+
+		if err != nil {
+			panic(err)
+		}
+
+	}
+
+	self.filesystem.GetDocumentGroupWord().GetMapIgnoreKeys(ignoredDocuments)
 
 	return result
 
