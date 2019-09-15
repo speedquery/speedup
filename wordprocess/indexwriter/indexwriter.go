@@ -162,7 +162,6 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 		return false
 	}
 
-<<<<<<< HEAD
 	file, err := os.Open(path)
 	if err != nil {
 		panic(err)
@@ -264,10 +263,6 @@ func (self *IndexWriter) DeleteDocument(idDocument uint) bool {
 		}
 
 	}
-=======
-	println(idx.fileSystem.GetWordMap().ToJson())
-	println(idx.fileSystem.GetAttributeWord().ToJson())
->>>>>>> 4904f70da0c7e5c04f9c4351f39631fe978b1cca
 
 	return true
 }
