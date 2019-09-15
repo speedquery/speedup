@@ -1,10 +1,15 @@
 package main
 
 import (
+<<<<<<< HEAD
 	"bufio"
 	"log"
 	"os"
 	"runtime"
+=======
+	"fmt"
+	"reflect"
+>>>>>>> 4904f70da0c7e5c04f9c4351f39631fe978b1cca
 	"speedup/document"
 	fs "speedup/filesystem"
 	"speedup/query"
@@ -106,8 +111,22 @@ func main() {
 
 	//cria o sistema de arquivos que vai gerenciar os indices
 
+<<<<<<< HEAD
 	//for {
 	//	time.Sleep(time.Second)
 	//}
+=======
+	//criar uma função chamada indexDocument
+	doc = new(document.Document).CreateDocument(1)
+	doc.AddField("nome", "jose taliba. luiz çao rodrigues")
+	doc.AddField("idade", 54)
+	doc.AddField("email", "bobboyms@gmail.com")
+
+	IndexWriter.IndexDocument(doc)
+
+	a := make([]int, 0)
+	b := make([]int, 0)
+	fmt.Println(reflect.DeepEqual(a, b))
+>>>>>>> 4904f70da0c7e5c04f9c4351f39631fe978b1cca
 
 }

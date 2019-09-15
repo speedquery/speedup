@@ -23,7 +23,6 @@ func (attw *AttributeWord) GetWordsOfAttribute(idAttribute *uint) []*uint {
 
 	idwords := attw.attributeWord[idAttribute]
 	return idwords
-
 }
 **/
 
