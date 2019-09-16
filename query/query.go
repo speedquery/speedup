@@ -54,11 +54,12 @@ func (self *Query) FilterOr(query *OR) []string {
 
 }
 
-func (self *Query) FilterAnd(query *EQ) []string {
+func (self *Query) FilterAnd(query Operators) []string {
 
 	var wg sync.WaitGroup
 
 	list := make([][]string, 0)
+
 	for _, eq := range query.GetList() {
 
 		key := eq.Key
@@ -204,17 +205,26 @@ func (self *Query) FindNotEQ(key, value string) []string {
 
 	scanner := bufio.NewScanner(file)
 
-	ignoredDocuments := make([]*uint, 0)
+	ignoredDocuments := make([]uint, 0)
 	for scanner.Scan() {
+
 		rs, err := strconv.Atoi(scanner.Text())
 
 		if err != nil {
 			panic(err)
 		}
 
+		ignoredDocuments = append(ignoredDocuments, uint(rs))
+
 	}
 
-	self.filesystem.GetDocumentGroupWord().GetMapIgnoreKeys(ignoredDocuments)
+	docsResult := self.filesystem.GetDocumentGroupWord().GetMapIgnoreKeys(ignoredDocuments)
+
+	for key, _ := range docsResult {
+		rs := fmt.Sprintf("%v", key)
+		println(rs)
+		result = append(result, rs)
+	}
 
 	return result
 

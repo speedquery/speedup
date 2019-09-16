@@ -98,7 +98,7 @@ func main() {
 
 	qr := new(query.Query).CreateQuery(fileSystem)
 
-	qr.FindNotEQ("nome", "thiago luiz")
+	qr.FindNotEQ("idade", "30")
 
 	if true {
 		return
