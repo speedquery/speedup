@@ -6,9 +6,10 @@ import (
 )
 
 type WordGroupMap struct {
-	id           uint
-	wordGroupMap map[string]*uint
-	someMapMutex sync.RWMutex
+	id                uint
+	wordGroupMap      map[string]*uint
+	wordGroupMapPoint map[uint]*uint
+	someMapMutex      sync.RWMutex
 }
 
 func (self *WordGroupMap) GetList() map[string]*uint {
@@ -30,9 +31,17 @@ func (self *WordGroupMap) IniWordGroupMap() *WordGroupMap {
 }
 
 func (self *WordGroupMap) SetNewMap(id uint, newMap map[string]*uint) *WordGroupMap {
+
 	self.someMapMutex.Lock()
+	self.wordGroupMapPoint = make(map[uint]*uint)
 	self.wordGroupMap = newMap
 	self.id = id
+
+	func() {
+		for _, value := range self.wordGroupMap {
+			self.wordGroupMapPoint[*value] = value
+		}
+	}()
 
 	self.someMapMutex.Unlock()
 
@@ -41,6 +50,11 @@ func (self *WordGroupMap) SetNewMap(id uint, newMap map[string]*uint) *WordGroup
 
 func (self *WordGroupMap) GetID() uint {
 	return self.id
+}
+
+func (self *WordGroupMap) GetPointer(id uint) *uint {
+	value, _ := self.wordGroupMapPoint[id]
+	return value
 }
 
 func (self *WordGroupMap) GetAWordGroup(wordgroup string) *uint {

@@ -41,24 +41,8 @@ func (self *AttributeMap) SetNewMap(id uint, newMap map[string]*uint) *Attribute
 }
 
 func (self *AttributeMap) GetPointer(id uint) *uint {
-
 	value, _ := self.attributeMapPoint[id]
-
-	/**
-	var point *uint = nil
-
-	self.someMapMutex.Lock()
-
-	for _, value := range self.attributeMap {
-		if *value == id {
-			point = value
-		}
-	}
-
-	self.someMapMutex.Unlock()
-	*/
 	return value
-
 }
 
 func (self *AttributeMap) GetAttribute(attribute string) *uint {

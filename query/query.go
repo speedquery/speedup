@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"speedup/collection"
 	"speedup/filesystem"
 	"speedup/utils"
 	"speedup/wordprocess/stringprocess"
@@ -152,8 +151,6 @@ func (self *Query) FindEQ(key, value string) []string {
 	wordGroup := make([]string, 0) //list.New()
 
 	for _, word := range words {
-		//wg.Add(1)
-
 		newWord := stringprocess.ProcessWord(word)
 		idword := self.filesystem.GetWordMap().AddWord(newWord)
 		wordGroup = append(wordGroup, fmt.Sprint(*idword))
@@ -247,7 +244,6 @@ func (self *Query) FindNotEQ(key, value string) []string {
 
 	for key, _ := range docsResult {
 		rs := fmt.Sprintf("%v", key)
-		//println(rs)
 		result = append(result, rs)
 	}
 
@@ -255,4 +251,49 @@ func (self *Query) FindNotEQ(key, value string) []string {
 
 }
 
+func (self *Query) FindGT(key, value string) []string {
 
+	result := make([]string, 0)
+
+	idAttribute := self.filesystem.GetAttributeMap().GetAttribute(key)
+
+	if idAttribute == nil {
+		panic("ATRIBUTO NAO ENCONTRADO")
+	}
+
+	listword := self.filesystem.GetWordDocument().GetList()
+
+	//wordGroup := make([]string, 0) //list.New()
+
+	for _, idWord := range listword {
+
+		word := self.filesystem.GetWordMap().GetValue(idWord)
+
+		if word == nil || !utils.IsNumber(*word) {
+			continue
+		}
+
+		path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedworddoc" + GetBar() + fmt.Sprintf("%v", *idWord) + ".txt"
+
+		file, err := os.Open(path)
+		//file, err := os.Open("C:\\teste\\arquivos-json-completo.txt") //os.Open("speedup/dados.txt")
+		if err != nil {
+			panic(err)
+		}
+
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+
+		i := 0
+		for scanner.Scan() {
+			i++
+			rs := scanner.Text()
+			result = append(result, rs)
+			//println(scanner.Text())
+		}
+
+	}
+
+	return result
+}

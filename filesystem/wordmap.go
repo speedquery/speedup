@@ -7,17 +7,17 @@ import (
 
 //WordMap struct
 type WordMap struct {
-	wordMap      map[string]*uint
-	point        map[uint]*uint
-	id           uint
-	someMapMutex sync.RWMutex
+	wordMap         map[string]*uint
+	invertedwordMap map[*uint]*string
+	id              uint
+	someMapMutex    sync.RWMutex
 }
 
 //NewWordMap create new wordmap
 func (self *WordMap) InitWordMap() *WordMap {
 	self.someMapMutex = sync.RWMutex{}
 	self.wordMap = make(map[string]*uint)
-	self.point = make(map[uint]*uint)
+	self.invertedwordMap = make(map[*uint]*string)
 	self.id = 0
 	return self
 }
@@ -26,12 +26,22 @@ func (self *WordMap) SetNewMap(id uint, newMap map[string]*uint) *WordMap {
 	self.wordMap = newMap
 	self.id = id
 
-	self.point = make(map[uint]*uint)
-	for _, v := range self.wordMap {
-		self.point[*v] = v
+	self.invertedwordMap = make(map[*uint]*string)
+	for k, v := range self.wordMap {
+		self.invertedwordMap[v] = &k
 	}
 
+	println("tamanho wordmap", len(self.invertedwordMap))
+
 	return self
+}
+
+func (self *WordMap) GetValue(key *uint) *string {
+
+	valeu, _ := self.invertedwordMap[key]
+
+	return valeu
+
 }
 
 func (self *WordMap) GetID() uint {
@@ -68,7 +78,6 @@ func (self *WordMap) AddWord(word string) *uint {
 		newvalue := self.id
 		value = &newvalue
 		self.wordMap[word] = value
-		self.point[*value] = value
 	}
 
 	self.someMapMutex.Unlock()

@@ -18,8 +18,9 @@ criados
 */
 
 const (
-	inverted      = "invertedindex"
-	groupdocument = "groupdocument"
+	inverted        = "invertedindex"
+	groupdocument   = "groupdocument"
+	invertedworddoc = "invertedworddoc"
 )
 
 func GetBar() string {
@@ -45,6 +46,7 @@ type FileSystem struct {
 	groupWordDocument  *GroupWordDocument
 	documentGroupWord  *DocumentGroupWord
 	serialization      *Serialization
+	wordDocument       *WordDocument
 	Configuration      map[string]string
 }
 
@@ -61,6 +63,7 @@ func (self *FileSystem) CreateFileSystem(nameFileSystem string, workFolder strin
 	self.attributeWord = new(AttributeWord).InitAttributeWord()
 	self.wordGroupMap = new(WordGroupMap).IniWordGroupMap()
 	self.attributeGroupWord = new(AttributeGroupWord).InitAttributeGroupWord()
+	self.wordDocument = new(WordDocument).InitWordDocument(self.Configuration["fileSystemFolder"])
 	self.groupWordDocument = new(GroupWordDocument).InitGroupWordDocument(self.Configuration["fileSystemFolder"])
 	self.documentGroupWord = new(DocumentGroupWord).InitDocumentGroupWord(self.Configuration["fileSystemFolder"])
 
@@ -106,6 +109,18 @@ func (self *FileSystem) createWorkFolder() {
 		}
 	}
 
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+
+		path := path + GetBar() + invertedworddoc
+
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+
+			os.Mkdir(path, 0777)
+
+			println("CREATE INDEX:", path)
+		}
+	}
+
 }
 
 func (self *FileSystem) GetWordMap() *WordMap {
@@ -136,6 +151,10 @@ func (self *FileSystem) GetDocumentGroupWord() *DocumentGroupWord {
 	return self.documentGroupWord
 }
 
+func (self *FileSystem) GetWordDocument() *WordDocument {
+	return self.wordDocument
+}
+
 const (
 	attributeMapFile      = "attmp.json"
 	wordMapFile           = "wordmp.json"
@@ -143,6 +162,7 @@ const (
 	attributeGroupWord    = "attgroupword-index.json"
 	groupWordDocumentFile = "groupworddoc-index.json"
 	documentGroupWordFile = "docgroupword-index.json"
+	worddocumentsFile     = "worddocuments-index.json"
 )
 
 type Serialization struct {
@@ -193,6 +213,13 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 	wg.Add(1)
 	go func(onClose func()) {
 		defer onClose()
+		self.DeSerealizeWordDocuments()
+
+	}(func() { wg.Done() })
+
+	wg.Add(1)
+	go func(onClose func()) {
+		defer onClose()
 		self.DeSerealizeAttributeGroupWord()
 
 	}(func() { wg.Done() })
@@ -228,6 +255,7 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 			go self.SerealizeAttributeMap()
 			go self.SerealizeWordMap()
 			go self.SerealizeWordGroupMap()
+			go self.SerealizeWordDocuments()
 			go self.SerealizeAttributeGroupWord()
 			go self.SerealizeGroupWordDocument()
 			go self.SerealizeDocumentGroupWord()
@@ -651,5 +679,61 @@ func (self *Serialization) DeSerealizeDocumentGroupWord() {
 	}
 
 	self.filesystem.GetDocumentGroupWord().SetNewMap(newMap)
+
+}
+
+func (self *Serialization) SerealizeWordDocuments() {
+
+	json := self.filesystem.GetWordDocument().ToJson()
+
+	openedFile := self.createFile(worddocumentsFile)
+	bufferedWriter := bufio.NewWriter(openedFile)
+	bufferedWriter.WriteString(json)
+	bufferedWriter.Flush()
+	openedFile.Close()
+}
+
+func (self *Serialization) DeSerealizeWordDocuments() {
+
+	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + worddocumentsFile
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return
+	}
+
+	openedFile, err := os.OpenFile(path, os.O_RDONLY, 0666)
+
+	if err != nil {
+		panic(err)
+	}
+
+	jsonString, err := ioutil.ReadAll(openedFile)
+
+	if err != nil {
+		panic(err)
+	}
+
+	openedFile.Close()
+
+	fields := make(map[string]interface{})
+	json.Unmarshal([]byte(jsonString), &fields)
+
+	newMap := make(map[*uint]*collection.Set)
+
+	for key, _ := range fields {
+
+		temp, err := strconv.Atoi(key)
+
+		if err != nil {
+			panic(err)
+		}
+
+		idDocument := uint(temp)
+		data := new(collection.Set).NewSet()
+
+		newMap[&idDocument] = data
+	}
+
+	self.filesystem.GetWordDocument().SetNewMap(newMap)
 
 }

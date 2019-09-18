@@ -86,9 +86,13 @@ func TesteIndexacaoTeste() {
 }
 
 func main() {
+	/**
+		TesteIndexacaoTeste()
 
-	//TesteIndexacaoTeste()
-
+		if true {
+			return
+		}
+	**/
 	workFolder := utils.InitializeWorkFolder()
 
 	fileSystem := new(fs.FileSystem).CreateFileSystem("teste", workFolder)
@@ -96,9 +100,13 @@ func main() {
 
 	qr := new(query.Query).CreateQuery(fileSystem)
 
-	qr.FindGT("idade", "20")
+	//qr.FindGT("idade", "20")
 
-	//qr.FindEQ("idade", "nil")
+	rs := qr.FindGT("idade", "30")
+
+	for _, v := range rs {
+		println(v)
+	}
 
 	//rs := qr.FilterAnd(noteq)
 
