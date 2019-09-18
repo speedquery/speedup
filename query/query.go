@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"speedup/collection"
 	"speedup/filesystem"
+	"speedup/utils"
 	"speedup/wordprocess/stringprocess"
 	"strconv"
 	"strings"
@@ -28,6 +30,7 @@ func GetBar() string {
 
 type Query struct {
 	filesystem *filesystem.FileSystem
+	andList    []Operators
 }
 
 func (self *Query) CreateQuery(filesystem *filesystem.FileSystem) *Query {
@@ -54,6 +57,17 @@ func (self *Query) FilterOr(query *OR) []string {
 
 }
 
+func (self *Query) AddAnd(query Operators) *Query {
+
+	if self.andList == nil {
+		self.andList = make([]Operators, 0)
+	}
+
+	self.andList = append(self.andList, query)
+
+	return self
+}
+
 func (self *Query) FilterAnd(query Operators) []string {
 
 	var wg sync.WaitGroup
@@ -70,10 +84,23 @@ func (self *Query) FilterAnd(query Operators) []string {
 
 			defer onClose()
 
-			result := self.FindEQ(key, value)
+			switch query.(type) {
+			case *EQ:
 
-			if len(result) > 0 {
-				list = append(list, result)
+				result := self.FindEQ(key, value)
+
+				if len(result) > 0 {
+					list = append(list, result)
+				}
+
+			case *NotEQ:
+
+				result := self.FindNotEQ(key, value)
+
+				if len(result) > 0 {
+					list = append(list, result)
+				}
+
 			}
 
 		}(key, value, func() { wg.Done() })
@@ -168,8 +195,6 @@ func (self *Query) FindNotEQ(key, value string) []string {
 
 	idAttribute := self.filesystem.GetAttributeMap().GetAttribute(key)
 
-	println("id atributo ", *idAttribute)
-
 	if idAttribute == nil {
 		panic("ATRIBUTO NAO ENCONTRADO")
 	}
@@ -222,8 +247,103 @@ func (self *Query) FindNotEQ(key, value string) []string {
 
 	for key, _ := range docsResult {
 		rs := fmt.Sprintf("%v", key)
-		println(rs)
+		//println(rs)
 		result = append(result, rs)
+	}
+
+	return result
+
+}
+
+func (self *Query) FindGT(key, value string) []string {
+
+	var wg sync.WaitGroup
+
+	result := make([]string, 0)
+
+	numbervalue, err := strconv.ParseFloat(value, 64)
+
+	if err != nil {
+		panic(err)
+	}
+
+	idAttribute := self.filesystem.GetAttributeMap().GetAttribute(key)
+
+	if idAttribute == nil {
+		panic("ATRIBUTO NAO ENCONTRADO")
+	}
+
+	words := strings.Split(value, " ")
+
+	wordGroup := make([]string, 0) //list.New()
+
+	for _, word := range words {
+		newWord := stringprocess.ProcessWord(word)
+		idword := self.filesystem.GetWordMap().AddWord(newWord)
+		wordGroup = append(wordGroup, fmt.Sprint(*idword))
+	}
+
+	mapgroup := self.filesystem.GetWordGroupMap().GetList()
+	setdocs := new(collection.StrSet).NewSet()
+
+	for k, v := range mapgroup {
+
+		n, _ := strconv.Atoi(k)
+		xs := self.filesystem.GetWordMap().GetWord(uint(n))
+
+		if !utils.IsNumber(xs) || len(xs) == 0 {
+			delete(mapgroup, k)
+			continue
+		}
+
+		number, err := strconv.ParseFloat(xs, 64)
+
+		if err != nil {
+			panic(err)
+		}
+
+		rs := number > numbervalue
+
+		println(rs, xs, value, *v)
+
+		if numbervalue <= number {
+			delete(mapgroup, k)
+			continue
+		}
+
+		wg.Add(1)
+		go func(onClose func()) {
+
+			defer onClose()
+
+			path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedindex" + GetBar() + fmt.Sprintf("%v", *v) + ".txt"
+
+			file, err := os.Open(path)
+			if err != nil {
+				panic(err)
+			}
+
+			defer file.Close()
+
+			scanner := bufio.NewScanner(file)
+
+			i := 0
+			for scanner.Scan() {
+				i++
+				rs := scanner.Text()
+				setdocs.Add(rs)
+			}
+
+		}(func() { wg.Done() })
+
+	}
+
+	wg.Wait()
+
+	for k, _ := range setdocs.GetSet() {
+
+		println(k)
+		result = append(result, k)
 	}
 
 	return result

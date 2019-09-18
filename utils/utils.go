@@ -3,6 +3,7 @@ package utils
 import (
 	"os"
 	"runtime"
+	"unicode"
 )
 
 func InitializeWorkFolder() string {
@@ -31,4 +32,13 @@ func InitializeWorkFolder() string {
 	}
 
 	return workFolder
+}
+
+func IsNumber(s string) bool {
+	for _, c := range s {
+		if c != 46 && !unicode.IsDigit(c) {
+			return false
+		}
+	}
+	return true
 }

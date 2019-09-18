@@ -82,14 +82,12 @@ func TesteIndexacaoTeste() {
 
 	//wg.Wait()
 
-	if id != 5 {
-		panic("Quantidade de registros deve ser 5")
-	}
-
-	time.Sleep(time.Minute)
+	time.Sleep(time.Minute * 2)
 }
 
 func main() {
+
+	//TesteIndexacaoTeste()
 
 	workFolder := utils.InitializeWorkFolder()
 
@@ -98,7 +96,13 @@ func main() {
 
 	qr := new(query.Query).CreateQuery(fileSystem)
 
-	qr.FindNotEQ("idade", "30")
+	qr.FindGT("idade", "20")
+
+	//qr.FindEQ("idade", "nil")
+
+	//rs := qr.FilterAnd(noteq)
+
+	println("------==============-----")
 
 	if true {
 		return
