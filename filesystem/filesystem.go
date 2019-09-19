@@ -48,6 +48,7 @@ type FileSystem struct {
 	serialization      *Serialization
 	wordDocument       *WordDocument
 	Configuration      map[string]string
+	FileSystem         *FileSystem
 }
 
 func (self *FileSystem) CreateFileSystem(nameFileSystem string, workFolder string) *FileSystem {
@@ -57,13 +58,14 @@ func (self *FileSystem) CreateFileSystem(nameFileSystem string, workFolder strin
 	self.Configuration["path"] = workFolder
 	self.Configuration["fileSystemFolder"] = workFolder + GetBar() + nameFileSystem
 
+	self.FileSystem = self
 	self.createWorkFolder()
 	self.wordmap = new(WordMap).InitWordMap()
 	self.attributeMap = new(AttributeMap).IniAttributeMap()
 	self.attributeWord = new(AttributeWord).InitAttributeWord()
 	self.wordGroupMap = new(WordGroupMap).IniWordGroupMap()
 	self.attributeGroupWord = new(AttributeGroupWord).InitAttributeGroupWord()
-	self.wordDocument = new(WordDocument).InitWordDocument(self.Configuration["fileSystemFolder"])
+	self.wordDocument = new(WordDocument).InitWordDocument(self.Configuration["fileSystemFolder"], self)
 	self.groupWordDocument = new(GroupWordDocument).InitGroupWordDocument(self.Configuration["fileSystemFolder"])
 	self.documentGroupWord = new(DocumentGroupWord).InitDocumentGroupWord(self.Configuration["fileSystemFolder"])
 
@@ -738,6 +740,6 @@ func (self *Serialization) DeSerealizeWordDocuments() {
 		newMap[idWord] = data
 	}
 
-	self.filesystem.GetWordDocument().SetNewMap(newMap)
+	self.filesystem.GetWordDocument().SetNewMap(newMap, self.filesystem)
 
 }

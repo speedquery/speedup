@@ -112,20 +112,8 @@ func main() {
 
 	//"NNUMEEMPR" :
 	start := time.Now()
-	rs := qr.FindGT("NNUMEEMPR", "323")
+	qr.FindGT("NNUMEEMPR", "323")
 	log.Printf("Binomial took %s", time.Since(start))
-
-	for _, v := range rs {
-		println(v)
-	}
-	//rs := qr.FilterAnd(noteq)
-
-	println("------==============-----")
-
-	rs = qr.FindGE("NNUMEEMPR", "323")
-	for _, v := range rs {
-		println(v)
-	}
 
 	if true {
 		return

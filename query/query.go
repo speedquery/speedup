@@ -7,7 +7,6 @@ import (
 	"runtime"
 	"speedup/collection"
 	"speedup/filesystem"
-	"speedup/utils"
 	"speedup/wordprocess/stringprocess"
 	"strconv"
 	"strings"
@@ -254,6 +253,8 @@ func (self *Query) FindNotEQ(key, value string) []string {
 
 func (self *Query) FindGT(key, value string) []string {
 
+	//var wg sync.WaitGroup
+
 	result := make([]string, 0)
 
 	idAttribute := self.filesystem.GetAttributeMap().GetAttribute(key)
@@ -262,17 +263,15 @@ func (self *Query) FindGT(key, value string) []string {
 		panic("ATRIBUTO NAO ENCONTRADO")
 	}
 
-	listword := self.filesystem.GetWordDocument().GetList()
-
-	//wordGroup := make([]string, 0) //list.New()
+	listword := self.filesystem.GetWordDocument().GetNumberList()
+	//setDocuments := new(collection.StrSet).NewSet()
+	setWords := new(collection.Set).NewSet()
 
 	for _, idWord := range listword {
 
 		word := self.filesystem.GetWordMap().GetValue(idWord)
 
-		if !utils.IsNumber(*word) {
-			continue
-		}
+		println(*word)
 
 		referenceValue, err := strconv.ParseFloat(value, 64)
 
@@ -290,100 +289,45 @@ func (self *Query) FindGT(key, value string) []string {
 			continue
 		}
 
-		//println("Word", *word)
+		setWords.Add(idWord)
 
-		path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedworddoc" + GetBar() + fmt.Sprintf("%v", *idWord) + ".txt"
+	}
+	/**
 
-		file, err := os.Open(path)
-		if err != nil {
-			panic(err)
-		}
+	for k, _ := range setWords.GetSet() {
 
-		defer file.Close()
+		wg.Add(1)
 
-		scanner := bufio.NewScanner(file)
+		func(idWord *uint, onClose func()) {
 
-		setDocuments := new(collection.StrSet).NewSet()
-		for scanner.Scan() {
-			rs := scanner.Text()
-			setDocuments.Add(rs)
+			defer onClose()
 
-			//result = append(result, rs)
-			//println(scanner.Text())
-		}
+			path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedworddoc" + GetBar() + fmt.Sprintf("%v", *idWord) + ".txt"
 
-		for k, _ := range setDocuments.GetSet() {
-			result = append(result, k)
-		}
+			file, err := os.Open(path)
+			if err != nil {
+				panic(err)
+			}
+
+			scanner := bufio.NewScanner(file)
+
+			for scanner.Scan() {
+				rs := scanner.Text()
+				setDocuments.Add(rs)
+			}
+
+			file.Close()
+
+		}(k, func() { wg.Done() })
 
 	}
 
-	return result
-}
+	wg.Wait()
 
-func (self *Query) FindGE(key, value string) []string {
-
-	result := make([]string, 0)
-
-	idAttribute := self.filesystem.GetAttributeMap().GetAttribute(key)
-
-	if idAttribute == nil {
-		panic("ATRIBUTO NAO ENCONTRADO")
+	for k, _ := range setDocuments.GetSet() {
+		result = append(result, k)
 	}
-
-	listword := self.filesystem.GetWordDocument().GetList()
-
-	//wordGroup := make([]string, 0) //list.New()
-
-	for _, idWord := range listword {
-
-		word := self.filesystem.GetWordMap().GetValue(idWord)
-
-		if !utils.IsNumber(*word) {
-			continue
-		}
-
-		referenceValue, err := strconv.ParseFloat(value, 64)
-
-		if err != nil {
-			panic(err)
-		}
-
-		wordValue, err := strconv.ParseFloat(*word, 64)
-
-		if err != nil {
-			panic(err)
-		}
-
-		if wordValue >= referenceValue {
-			continue
-		}
-
-		path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedworddoc" + GetBar() + fmt.Sprintf("%v", *idWord) + ".txt"
-
-		file, err := os.Open(path)
-		if err != nil {
-			panic(err)
-		}
-
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-
-		setDocuments := new(collection.StrSet).NewSet()
-		for scanner.Scan() {
-			rs := scanner.Text()
-			setDocuments.Add(rs)
-
-			//result = append(result, rs)
-			//println(scanner.Text())
-		}
-
-		for k, _ := range setDocuments.GetSet() {
-			result = append(result, k)
-		}
-
-	}
+	**/
 
 	return result
 }

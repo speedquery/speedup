@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"speedup/collection"
+	"speedup/utils"
 	"strings"
 	"sync"
 	"time"
@@ -30,26 +31,37 @@ type WordDocument struct {
 	//WordDocument map[*uint]*bufio.Writer
 	//control           map[*uint]uint
 	WordDocument map[*uint]*collection.Set
-	numberList   []*uint
+	numberList   *collection.Set
 	someMapMutex sync.RWMutex
 	folder       string
 	qtd          uint
+	fileSystem   *FileSystem
 }
 
-func (self *WordDocument) SetNewMap(newMap map[*uint]*collection.Set) *WordDocument {
+func (self *WordDocument) SetNewMap(newMap map[*uint]*collection.Set, fileSystem *FileSystem) *WordDocument {
 	self.WordDocument = newMap
+
+	self.numberList = new(collection.Set).NewSet()
+
+	self.fileSystem = fileSystem
+
+	for k, _ := range self.WordDocument {
+
+		word := self.fileSystem.GetWordMap().GetValue(k)
+
+		if len(*word) == 0 || !utils.IsNumber(*word) {
+			continue
+		}
+
+		self.numberList.Add(k)
+	}
+
 	return self
 }
 
-func (self *WordDocument) GetList() []*uint {
+func (self *WordDocument) GetList() *collection.Set {
 
-	temp := make([]*uint, 0)
-
-	for k, _ := range self.WordDocument {
-		temp = append(temp, k)
-	}
-
-	return temp
+	return self.numberList
 
 }
 
@@ -57,17 +69,19 @@ func (self *WordDocument) GetNumberList() []*uint {
 
 	temp := make([]*uint, 0)
 
-	for k, _ := range self.WordDocument {
+	for k, _ := range self.numberList.GetSet() {
 		temp = append(temp, k)
 	}
 
 	return temp
 }
 
-func (self *WordDocument) InitWordDocument(fileSystemFolder string) *WordDocument {
+func (self *WordDocument) InitWordDocument(fileSystemFolder string, fileSystem *FileSystem) *WordDocument {
 
 	self.someMapMutex = sync.RWMutex{}
 	self.WordDocument = make(map[*uint]*collection.Set)
+	self.numberList = new(collection.Set).NewSet()
+
 	self.folder = fileSystemFolder + self.getBar() + invertedworddoc
 	self.qtd = 0
 	/**
