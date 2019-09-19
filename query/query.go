@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"speedup/collection"
 	"speedup/filesystem"
 	"speedup/utils"
 	"speedup/wordprocess/stringprocess"
@@ -269,14 +270,31 @@ func (self *Query) FindGT(key, value string) []string {
 
 		word := self.filesystem.GetWordMap().GetValue(idWord)
 
-		if word == nil || !utils.IsNumber(*word) {
+		if !utils.IsNumber(*word) {
 			continue
 		}
+
+		referenceValue, err := strconv.ParseFloat(value, 64)
+
+		if err != nil {
+			panic(err)
+		}
+
+		wordValue, err := strconv.ParseFloat(*word, 64)
+
+		if err != nil {
+			panic(err)
+		}
+
+		if wordValue <= referenceValue {
+			continue
+		}
+
+		//println("Word", *word)
 
 		path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedworddoc" + GetBar() + fmt.Sprintf("%v", *idWord) + ".txt"
 
 		file, err := os.Open(path)
-		//file, err := os.Open("C:\\teste\\arquivos-json-completo.txt") //os.Open("speedup/dados.txt")
 		if err != nil {
 			panic(err)
 		}
@@ -285,12 +303,84 @@ func (self *Query) FindGT(key, value string) []string {
 
 		scanner := bufio.NewScanner(file)
 
-		i := 0
+		setDocuments := new(collection.StrSet).NewSet()
 		for scanner.Scan() {
-			i++
 			rs := scanner.Text()
-			result = append(result, rs)
+			setDocuments.Add(rs)
+
+			//result = append(result, rs)
 			//println(scanner.Text())
+		}
+
+		for k, _ := range setDocuments.GetSet() {
+			result = append(result, k)
+		}
+
+	}
+
+	return result
+}
+
+func (self *Query) FindGE(key, value string) []string {
+
+	result := make([]string, 0)
+
+	idAttribute := self.filesystem.GetAttributeMap().GetAttribute(key)
+
+	if idAttribute == nil {
+		panic("ATRIBUTO NAO ENCONTRADO")
+	}
+
+	listword := self.filesystem.GetWordDocument().GetList()
+
+	//wordGroup := make([]string, 0) //list.New()
+
+	for _, idWord := range listword {
+
+		word := self.filesystem.GetWordMap().GetValue(idWord)
+
+		if !utils.IsNumber(*word) {
+			continue
+		}
+
+		referenceValue, err := strconv.ParseFloat(value, 64)
+
+		if err != nil {
+			panic(err)
+		}
+
+		wordValue, err := strconv.ParseFloat(*word, 64)
+
+		if err != nil {
+			panic(err)
+		}
+
+		if wordValue >= referenceValue {
+			continue
+		}
+
+		path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedworddoc" + GetBar() + fmt.Sprintf("%v", *idWord) + ".txt"
+
+		file, err := os.Open(path)
+		if err != nil {
+			panic(err)
+		}
+
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+
+		setDocuments := new(collection.StrSet).NewSet()
+		for scanner.Scan() {
+			rs := scanner.Text()
+			setDocuments.Add(rs)
+
+			//result = append(result, rs)
+			//println(scanner.Text())
+		}
+
+		for k, _ := range setDocuments.GetSet() {
+			result = append(result, k)
 		}
 
 	}

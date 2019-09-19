@@ -30,6 +30,7 @@ type WordDocument struct {
 	//WordDocument map[*uint]*bufio.Writer
 	//control           map[*uint]uint
 	WordDocument map[*uint]*collection.Set
+	numberList   []*uint
 	someMapMutex sync.RWMutex
 	folder       string
 	qtd          uint
@@ -50,6 +51,17 @@ func (self *WordDocument) GetList() []*uint {
 
 	return temp
 
+}
+
+func (self *WordDocument) GetNumberList() []*uint {
+
+	temp := make([]*uint, 0)
+
+	for k, _ := range self.WordDocument {
+		temp = append(temp, k)
+	}
+
+	return temp
 }
 
 func (self *WordDocument) InitWordDocument(fileSystemFolder string) *WordDocument {

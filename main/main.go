@@ -41,10 +41,10 @@ func TesteIndexacaoTeste() {
 	println("GLOBAL PATH:", workFolder)
 
 	//cria o sistema de arquivos que vai gerenciar os indices
-	fileSystem := new(fs.FileSystem).CreateFileSystem("teste", workFolder)
+	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/teste2.txt")
+	file, err := os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -69,7 +69,7 @@ func TesteIndexacaoTeste() {
 		wg.Add(1)
 		start := time.Now()
 
-		IndexWriter.IndexDocument(doc, false)
+		IndexWriter.IndexDocument(doc, true)
 		doc = doc.DeleteMemoryDocument()
 
 		if i == 10000 {
@@ -82,35 +82,50 @@ func TesteIndexacaoTeste() {
 
 	//wg.Wait()
 
-	time.Sleep(time.Minute * 2)
+	//time.Sleep(time.Minute * 2)
+
+	println("Concluido")
+
+	for {
+		time.Sleep(time.Second)
+	}
 }
 
 func main() {
 	/**
-		TesteIndexacaoTeste()
+	TesteIndexacaoTeste()
 
-		if true {
-			return
-		}
+	if true {
+		return
+	}
 	**/
 	workFolder := utils.InitializeWorkFolder()
 
-	fileSystem := new(fs.FileSystem).CreateFileSystem("teste", workFolder)
+	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	//IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
+
+	println("iniciou a query")
 
 	qr := new(query.Query).CreateQuery(fileSystem)
 
 	//qr.FindGT("idade", "20")
 
-	rs := qr.FindGT("idade", "30")
+	//"NNUMEEMPR" :
+	start := time.Now()
+	rs := qr.FindGT("NNUMEEMPR", "323")
+	log.Printf("Binomial took %s", time.Since(start))
 
 	for _, v := range rs {
 		println(v)
 	}
-
 	//rs := qr.FilterAnd(noteq)
 
 	println("------==============-----")
+
+	rs = qr.FindGE("NNUMEEMPR", "323")
+	for _, v := range rs {
+		println(v)
+	}
 
 	if true {
 		return

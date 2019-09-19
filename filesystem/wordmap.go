@@ -23,15 +23,18 @@ func (self *WordMap) InitWordMap() *WordMap {
 }
 
 func (self *WordMap) SetNewMap(id uint, newMap map[string]*uint) *WordMap {
+
 	self.wordMap = newMap
 	self.id = id
 
 	self.invertedwordMap = make(map[*uint]*string)
+	//self.numberMap = make(map[*uint]*string)
 	for k, v := range self.wordMap {
-		self.invertedwordMap[v] = &k
-	}
 
-	println("tamanho wordmap", len(self.invertedwordMap))
+		temp := k
+		self.invertedwordMap[v] = &temp
+
+	}
 
 	return self
 }
@@ -41,6 +44,21 @@ func (self *WordMap) GetValue(key *uint) *string {
 	valeu, _ := self.invertedwordMap[key]
 
 	return valeu
+
+}
+
+func (self *WordMap) GetPoint(key uint) *uint {
+
+	var p *uint
+	for _, v := range self.wordMap {
+
+		if *v == key {
+			p = v
+			break
+		}
+	}
+
+	return p
 
 }
 
@@ -77,7 +95,11 @@ func (self *WordMap) AddWord(word string) *uint {
 		self.id++
 		newvalue := self.id
 		value = &newvalue
+
 		self.wordMap[word] = value
+		self.invertedwordMap[value] = &word
+		//self.numberMap[value] = &word
+
 	}
 
 	self.someMapMutex.Unlock()

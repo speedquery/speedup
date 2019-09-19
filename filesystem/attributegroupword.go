@@ -65,13 +65,15 @@ func (self *AttributeGroupWord) AddGroupWordsOfAttribute(idAttribute, idGroup *u
 
 }
 
-func (attg *AttributeGroupWord) ToJson() string {
+func (self *AttributeGroupWord) ToJson() string {
 
 	//data, err := json.Marshal(attg.attributeGroupWord)
 
 	temp := make(map[uint][]*uint)
 
-	for key, value := range attg.attributeGroupWord {
+	self.someMapMutex.Lock()
+
+	for key, value := range self.attributeGroupWord {
 
 		groups := make([]*uint, 0)
 
@@ -81,6 +83,8 @@ func (attg *AttributeGroupWord) ToJson() string {
 
 		temp[*key] = groups
 	}
+
+	self.someMapMutex.Unlock()
 
 	data, err := json.Marshal(temp)
 

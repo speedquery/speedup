@@ -23,7 +23,10 @@ func (self *Set) IsExistValue(key *uint) bool {
 }
 
 func (self *Set) GetSet() map[*uint]bool {
-	return self.set
+	self.someMapMutex.Lock()
+	temp := self.set
+	self.someMapMutex.Unlock()
+	return temp
 }
 
 func (self *Set) Add(value *uint) {

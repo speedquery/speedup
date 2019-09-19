@@ -728,10 +728,14 @@ func (self *Serialization) DeSerealizeWordDocuments() {
 			panic(err)
 		}
 
-		idDocument := uint(temp)
-		data := new(collection.Set).NewSet()
+		idWord := self.filesystem.GetWordMap().GetPoint(uint(temp))
 
-		newMap[&idDocument] = data
+		if idWord == nil {
+			panic("NAO ENCONTRADO O ID EM WORDMAP")
+		}
+
+		data := new(collection.Set).NewSet()
+		newMap[idWord] = data
 	}
 
 	self.filesystem.GetWordDocument().SetNewMap(newMap)
