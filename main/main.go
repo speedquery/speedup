@@ -111,9 +111,11 @@ func main() {
 	//qr.FindGT("idade", "20")
 
 	//"NNUMEEMPR" :
+
 	start := time.Now()
-	qr.FindGT("NNUMEEMPR", "323")
+	rs := qr.FindIndexNotEQ("100")
 	log.Printf("Binomial took %s", time.Since(start))
+	println(len(rs))
 
 	if true {
 		return

@@ -730,7 +730,7 @@ func (self *Serialization) DeSerealizeWordDocuments() {
 			panic(err)
 		}
 
-		idWord := self.filesystem.GetWordMap().GetPoint(uint(temp))
+		idWord := self.filesystem.GetWordMap().GetPointKey(uint(temp))
 
 		if idWord == nil {
 			panic("NAO ENCONTRADO O ID EM WORDMAP")

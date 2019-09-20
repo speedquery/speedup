@@ -52,9 +52,22 @@ func (self *WordMap) GetValue(key *uint) *string {
 
 }
 
-func (self *WordMap) GetPoint(key uint) *uint {
+func (self *WordMap) GetPointKey(key uint) *uint {
 
+	self.someMapMutex.Lock()
 	value, _ := self.pointWordMap[key]
+	self.someMapMutex.Unlock()
+
+	return value
+
+}
+
+func (self *WordMap) GetPointValue(key string) *uint {
+
+	self.someMapMutex.Lock()
+	value, _ := self.wordMap[key]
+	self.someMapMutex.Unlock()
+
 	return value
 
 }
@@ -63,6 +76,7 @@ func (self *WordMap) GetID() uint {
 	return self.id
 }
 
+/**
 func (self *WordMap) GetWord(value uint) string {
 
 	self.someMapMutex.Lock()
@@ -80,6 +94,7 @@ func (self *WordMap) GetWord(value uint) string {
 
 	return vl
 }
+**/
 
 //AddWord Add new word in map
 func (self *WordMap) AddWord(word string) *uint {
