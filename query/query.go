@@ -420,10 +420,8 @@ func (self *Query) FindAttGT(key, value string) []string {
 
 			scanner := bufio.NewScanner(file)
 
-			println("ID WORD", *idWord)
 			for scanner.Scan() {
 				rs := scanner.Text()
-				println("Documentos", rs)
 				setDocuments.Add(rs)
 			}
 
@@ -434,7 +432,6 @@ func (self *Query) FindAttGT(key, value string) []string {
 	wg.Wait()
 
 	for k, _ := range setDocuments.GetSet() {
-		println("Set", k)
 		result = append(result, k)
 	}
 
@@ -509,10 +506,10 @@ func (self *Query) FindAttGE(key, value string) []string {
 
 			scanner := bufio.NewScanner(file)
 
-			println("ID WORD", *idWord)
+			//println("ID WORD", *idWord)
 			for scanner.Scan() {
 				rs := scanner.Text()
-				println("Documentos", rs)
+				//println("Documentos", rs)
 				setDocuments.Add(rs)
 			}
 
@@ -523,7 +520,6 @@ func (self *Query) FindAttGE(key, value string) []string {
 	wg.Wait()
 
 	for k, _ := range setDocuments.GetSet() {
-		println("Set", k)
 		result = append(result, k)
 	}
 

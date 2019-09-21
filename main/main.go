@@ -41,10 +41,10 @@ func TesteIndexacaoTeste() {
 	println("GLOBAL PATH:", workFolder)
 
 	//cria o sistema de arquivos que vai gerenciar os indices
-	fileSystem := new(fs.FileSystem).CreateFileSystem("teste", workFolder)
+	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/teste2.txt")
+	file, err := os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -69,7 +69,7 @@ func TesteIndexacaoTeste() {
 		wg.Add(1)
 		start := time.Now()
 
-		IndexWriter.IndexDocument(doc, false)
+		IndexWriter.IndexDocument(doc, true)
 		doc = doc.DeleteMemoryDocument()
 
 		if i == 10000 {
@@ -82,7 +82,7 @@ func TesteIndexacaoTeste() {
 
 	//wg.Wait()
 
-	time.Sleep(time.Minute * 2)
+	time.Sleep(time.Minute * 3)
 	println("---- Concluido ----")
 
 	if true {
@@ -103,7 +103,7 @@ func main() {
 		}
 	***/
 	workFolder := utils.InitializeWorkFolder()
-	fileSystem := new(fs.FileSystem).CreateFileSystem("teste", workFolder)
+	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	//IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
 	println("iniciou a query")
@@ -115,13 +115,13 @@ func main() {
 	//"NNUMEEMPR" :
 
 	start := time.Now()
-	rs := qr.FindAttGE("idade", "30")
+	rs := qr.FindAttNotEQ("IDADE", "50")
 	log.Printf("Binomial took %s", time.Since(start))
-	//println(len(rs))
+	println("Total:", len(rs))
 
-	for _, v := range rs {
-		println(v)
-	}
+	//	for _, v := range rs {
+	//		println(v)
+	//	}
 
 	if true {
 		return
