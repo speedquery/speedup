@@ -41,10 +41,10 @@ func TesteIndexacaoTeste() {
 	println("GLOBAL PATH:", workFolder)
 
 	//cria o sistema de arquivos que vai gerenciar os indices
-	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
+	fileSystem := new(fs.FileSystem).CreateFileSystem("teste", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/dados.txt")
+	file, err := os.Open("speedup/teste2.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -69,7 +69,7 @@ func TesteIndexacaoTeste() {
 		wg.Add(1)
 		start := time.Now()
 
-		IndexWriter.IndexDocument(doc, true)
+		IndexWriter.IndexDocument(doc, false)
 		doc = doc.DeleteMemoryDocument()
 
 		if i == 10000 {
@@ -82,26 +82,28 @@ func TesteIndexacaoTeste() {
 
 	//wg.Wait()
 
-	//time.Sleep(time.Minute * 2)
+	time.Sleep(time.Minute * 2)
+	println("---- Concluido ----")
 
-	println("Concluido")
+	if true {
+		return
+	}
 
 	for {
-		time.Sleep(time.Second)
+		time.Sleep(time.Minute)
 	}
 }
 
 func main() {
 	/**
-	TesteIndexacaoTeste()
+		TesteIndexacaoTeste()
 
-	if true {
-		return
-	}
-	**/
+		if true {
+			return
+		}
+	***/
 	workFolder := utils.InitializeWorkFolder()
-
-	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
+	fileSystem := new(fs.FileSystem).CreateFileSystem("teste", workFolder)
 	//IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
 	println("iniciou a query")
@@ -113,9 +115,13 @@ func main() {
 	//"NNUMEEMPR" :
 
 	start := time.Now()
-	rs := qr.FindIndexNotEQ("100")
+	rs := qr.FindAttGE("idade", "30")
 	log.Printf("Binomial took %s", time.Since(start))
-	println(len(rs))
+	//println(len(rs))
+
+	for _, v := range rs {
+		println(v)
+	}
 
 	if true {
 		return

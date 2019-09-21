@@ -12,10 +12,24 @@ type AttributeWord struct {
 	someMapMutex  sync.RWMutex
 }
 
-func (attw *AttributeWord) InitAttributeWord() *AttributeWord {
-	attw.someMapMutex = sync.RWMutex{}
-	attw.attributeWord = make(map[*uint]*collection.Set)
-	return attw
+func (self *AttributeWord) InitAttributeWord() *AttributeWord {
+	self.someMapMutex = sync.RWMutex{}
+	self.attributeWord = make(map[*uint]*collection.Set)
+	return self
+}
+
+func (self *AttributeWord) SetNewMap(newMap map[*uint]*collection.Set) {
+	self.attributeWord = newMap
+}
+
+func (self *AttributeWord) GetValue(idAttribute *uint) (*collection.Set, bool) {
+
+	self.someMapMutex.Lock()
+	idGroups, exist := self.attributeWord[idAttribute]
+	self.someMapMutex.Unlock()
+
+	return idGroups, exist
+
 }
 
 /**
@@ -26,31 +40,31 @@ func (attw *AttributeWord) GetWordsOfAttribute(idAttribute *uint) []*uint {
 }
 **/
 
-func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) *collection.Set {
+func (self *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) *collection.Set {
 
-	attw.someMapMutex.Lock()
+	self.someMapMutex.Lock()
 
-	idwords, exist := attw.attributeWord[idAttribute]
+	idwords, exist := self.attributeWord[idAttribute]
 
 	if !exist || idwords == nil {
 		idwords = new(collection.Set).NewSet()
 		idwords.Add(idWord)
-		attw.attributeWord[idAttribute] = idwords
+		self.attributeWord[idAttribute] = idwords
 	} else {
 		idwords.Add(idWord)
 	}
 
-	attw.someMapMutex.Unlock()
+	self.someMapMutex.Unlock()
 
 	return idwords
 
 }
 
-func (attw *AttributeWord) ToJson() string {
+func (self *AttributeWord) ToJson() string {
 
 	temp := make(map[uint][]*uint)
 
-	for key, idwords := range attw.attributeWord {
+	for key, idwords := range self.attributeWord {
 
 		words := make([]*uint, 0)
 
