@@ -1,6 +1,6 @@
 {"nome":"thiago luiz", "idade":20}
 {"nome":"thiago luiz", "idade":32}
-{"nome":"jose luiz", "idade":30}
+{"nome":"jose luiz", "idade":30, "salario":20}
 {"nome":"isabella rodrigues", "idade":10}
 {"nome":"tatiane rodrigues", "idade":30}
 {"nome":null, "idade":30}

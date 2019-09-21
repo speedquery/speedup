@@ -44,7 +44,7 @@ func TesteIndexacaoTeste() {
 	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/dados.txt")
+	file, err := os.Open("speedup/teste2.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -69,7 +69,7 @@ func TesteIndexacaoTeste() {
 		wg.Add(1)
 		start := time.Now()
 
-		IndexWriter.IndexDocument(doc, true)
+		IndexWriter.IndexDocument(doc, false)
 		doc = doc.DeleteMemoryDocument()
 
 		if i == 10000 {
@@ -95,15 +95,15 @@ func TesteIndexacaoTeste() {
 }
 
 func main() {
-	/**
-		TesteIndexacaoTeste()
 
-		if true {
-			return
-		}
-	***/
+	TesteIndexacaoTeste()
+
+	if true {
+		return
+	}
+
 	workFolder := utils.InitializeWorkFolder()
-	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
+	fileSystem := new(fs.FileSystem).CreateFileSystem("teste", workFolder)
 	//IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
 	println("iniciou a query")
@@ -115,7 +115,7 @@ func main() {
 	//"NNUMEEMPR" :
 
 	start := time.Now()
-	rs := qr.FindAttNotEQ("IDADE", "50")
+	rs := qr.FindAttGE("idade", "20")
 	log.Printf("Binomial took %s", time.Since(start))
 	println("Total:", len(rs))
 
