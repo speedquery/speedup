@@ -75,7 +75,12 @@ func (self *IndexWriter) IndexDocument(document *doc.Document, bulk bool) {
 				self.fileSystem.GetWordDocument().AddWordDocument(idword, idDocument, bulk)
 			}(idword, idDocument, bulk, func() { wg.Done() })
 
-			//idx.fileSystem.GetAttributeWord().AddWordsOfAttribute(idAttribute, idword)
+			wg.Add(1)
+			go func(idAttribute, idword *uint, onClose func()) {
+				defer onClose()
+				self.fileSystem.GetAttributeWord().AddWordsOfAttribute(idAttribute, idword)
+			}(idAttribute, idword, func() { wg.Done() })
+
 			wordGroup = append(wordGroup, fmt.Sprint(*idword))
 		}
 

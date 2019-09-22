@@ -165,6 +165,7 @@ const (
 	groupWordDocumentFile = "groupworddoc-index.json"
 	documentGroupWordFile = "docgroupword-index.json"
 	worddocumentsFile     = "worddocuments-index.json"
+	attributeWordFile     = "attributeWord-index.json"
 )
 
 type Serialization struct {
@@ -215,6 +216,13 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 	wg.Add(1)
 	go func(onClose func()) {
 		defer onClose()
+		self.DeSerealizeAttributeWord()
+
+	}(func() { wg.Done() })
+
+	wg.Add(1)
+	go func(onClose func()) {
+		defer onClose()
 		self.DeSerealizeWordDocuments()
 
 	}(func() { wg.Done() })
@@ -261,6 +269,7 @@ func (self *Serialization) CreateSerialization(filesystem *FileSystem) *Serializ
 			go self.SerealizeAttributeGroupWord()
 			go self.SerealizeGroupWordDocument()
 			go self.SerealizeDocumentGroupWord()
+			go self.SerealizeAttributeWord()
 		}
 
 	}()
@@ -285,6 +294,7 @@ func (self *Serialization) createFile(nameFile string) *os.File {
 
 	return file
 }
+
 func (self *Serialization) GetLastID(fileName string) uint {
 	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "id-" + fileName
 
@@ -742,4 +752,83 @@ func (self *Serialization) DeSerealizeWordDocuments() {
 
 	self.filesystem.GetWordDocument().SetNewMap(newMap, self.filesystem)
 
+}
+
+func (self *Serialization) SerealizeAttributeWord() {
+
+	json := self.filesystem.GetAttributeWord().ToJson()
+
+	openedFile := self.createFile(attributeWordFile)
+	bufferedWriter := bufio.NewWriter(openedFile)
+	bufferedWriter.WriteString(json)
+	bufferedWriter.Flush()
+	openedFile.Close()
+}
+
+func (self *Serialization) DeSerealizeAttributeWord() {
+
+	path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + attributeWordFile
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return
+	}
+
+	openedFile, err := os.OpenFile(path, os.O_RDONLY, 0666)
+
+	if err != nil {
+		panic(err)
+	}
+
+	jsonString, err := ioutil.ReadAll(openedFile)
+
+	if err != nil {
+		panic(err)
+	}
+
+	openedFile.Close()
+
+	fields := make(map[string]interface{})
+	json.Unmarshal([]byte(jsonString), &fields)
+
+	newMap := make(map[*uint]*collection.Set)
+
+	for key, value := range fields {
+
+		tempkey, err := strconv.Atoi(key)
+
+		if err != nil {
+			panic(err)
+		}
+
+		idAttribute := self.filesystem.GetAttributeMap().GetPointer(uint(tempkey))
+
+		if idAttribute == nil {
+			panic("NAO ENCONTRADO O ID EM AttributeMap")
+		}
+
+		data := new(collection.Set).NewSet()
+		arr := value.([]interface{})
+
+		for _, value := range arr {
+
+			tempkey := value.(float64) // := strconv.Atoi()
+
+			if err != nil {
+				panic(err)
+			}
+
+			idWord := self.filesystem.GetWordMap().GetPointKey(uint(tempkey))
+
+			if idWord == nil {
+				panic("ID NAO ENCONTRADO EM WordMap")
+			}
+
+			data.Add(idWord)
+		}
+
+		newMap[idAttribute] = data
+	}
+
+	self.filesystem.GetAttributeWord().SetNewMap(newMap)
+	//println(self.filesystem.GetAttributeWord().ToJson())
 }
