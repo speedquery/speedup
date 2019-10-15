@@ -41,10 +41,10 @@ func TesteIndexacaoTeste() {
 	println("GLOBAL PATH:", workFolder)
 
 	//cria o sistema de arquivos que vai gerenciar os indices
-	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
+	fileSystem := new(fs.FileSystem).CreateFileSystem("teste", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/dados.txt")
+	file, err := os.Open("speedup/teste2.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,11 +53,11 @@ func TesteIndexacaoTeste() {
 
 	scanner := bufio.NewScanner(file)
 
-	buf := make([]byte, 0, 1024*1024)
-	scanner.Buffer(buf, 10*1024*1024)
+	//buf := make([]byte, 0, 1024*1024)
+	//scanner.Buffer(buf, 10*1024*1024)
 
-	var id uint
-	id = 0
+	//var id uint
+	id := uint(0)
 
 	var wg sync.WaitGroup
 	var i uint = 0
@@ -90,7 +90,7 @@ func TesteIndexacaoTeste() {
 
 	println("---- Concluido ----")
 	log.Printf("Binomial took %s", time.Since(start))
-	time.Sleep(time.Minute * 5)
+	time.Sleep(time.Minute * 2)
 
 	if true {
 		return
@@ -103,11 +103,11 @@ func TesteIndexacaoTeste() {
 
 func main() {
 	/**
-		TesteIndexacaoTeste()
+	TesteIndexacaoTeste()
 
-		if true {
-			return
-		}
+	if true {
+		return
+	}
 	**/
 
 	workFolder := utils.InitializeWorkFolder()
@@ -116,19 +116,32 @@ func main() {
 
 	println("iniciou a query")
 
-	qr := new(query.Query).CreateQuery(fileSystem)
 	start := time.Now()
+	qr := new(query.Query).CreateQuery(fileSystem)
+
+	rs := qr.Add(new(query.EQ).AddEQ(&query.Map{
+		Key:   "idade",
+		Value: "20",
+	})).AddOR(new(query.OR).AddOR(new(query.EQ).AddEQ(&query.Map{
+		Key:   "idade",
+		Value: "10",
+	}))).GetList()
+
+	/**
+		)
+	***/
 
 	//rs := qr.FindAttEQ("NMPRESTAD", "LABORATORIO MUSIAL LTDA")
 	//rs := qr.FindIndexEQ("30")
 
-	qq := new(query.NotEQ).AddEQ(&query.Map{
-		Key:   "idade",
-		Value: "30",
-	})
+	/**
+		qq := new(query.NotEQ).AddEQ(&query.Map{
+			Key:   "idade",
+			Value: "30",
+		})
 
-	rs := qr.FilterAnd(qq)
-
+		//rs := qr.FilterAnd(qq)
+	**/
 	log.Printf("Binomial took %s", time.Since(start))
 	println("Total:", len(rs))
 

@@ -1,13 +1,13 @@
 package query
 
 type OR struct {
-	orlist []*EQ
+	orlist []Operators
 }
 
-func (self *OR) AddOR(eq *EQ) *OR {
+func (self *OR) AddOR(eq Operators) *OR {
 
 	if self.orlist == nil {
-		self.orlist = make([]*EQ, 0)
+		self.orlist = make([]Operators, 0)
 	}
 
 	self.orlist = append(self.orlist, eq)
@@ -16,6 +16,6 @@ func (self *OR) AddOR(eq *EQ) *OR {
 
 }
 
-func (self *OR) GetList() []*EQ {
+func (self *OR) GetListEQ() []Operators {
 	return self.orlist
 }
