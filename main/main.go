@@ -44,7 +44,7 @@ func TesteIndexacaoTeste() {
 	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/teste2.txt")
+	file, err := os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,23 +53,29 @@ func TesteIndexacaoTeste() {
 
 	scanner := bufio.NewScanner(file)
 
+	buf := make([]byte, 0, 1024*1024)
+	scanner.Buffer(buf, 10*1024*1024)
+
 	var id uint
 	id = 0
 
 	var wg sync.WaitGroup
 	var i uint = 0
 
+	start := time.Now()
 	for scanner.Scan() {
 
 		id++
 		doc := new(document.Document).CreateDocument(id)
+
+		//println(scanner.Text())
 
 		flat, _ := fs.FlattenString(scanner.Text(), "", fs.DotStyle)
 		doc.ToMap(flat)
 		wg.Add(1)
 		start := time.Now()
 
-		IndexWriter.IndexDocument(doc, false)
+		IndexWriter.IndexDocument(doc, true)
 		doc = doc.DeleteMemoryDocument()
 
 		if i == 10000 {
@@ -82,8 +88,9 @@ func TesteIndexacaoTeste() {
 
 	//wg.Wait()
 
-	time.Sleep(time.Minute * 3)
 	println("---- Concluido ----")
+	log.Printf("Binomial took %s", time.Since(start))
+	time.Sleep(time.Minute * 5)
 
 	if true {
 		return
@@ -95,12 +102,13 @@ func TesteIndexacaoTeste() {
 }
 
 func main() {
+	/**
+		TesteIndexacaoTeste()
 
-	TesteIndexacaoTeste()
-
-	if true {
-		return
-	}
+		if true {
+			return
+		}
+	**/
 
 	workFolder := utils.InitializeWorkFolder()
 	fileSystem := new(fs.FileSystem).CreateFileSystem("teste", workFolder)
@@ -109,23 +117,24 @@ func main() {
 	println("iniciou a query")
 
 	qr := new(query.Query).CreateQuery(fileSystem)
-
-	//qr.FindGT("idade", "20")
-
-	//"NNUMEEMPR" :
-
 	start := time.Now()
-	rs := qr.FindAttGE("idade", "20")
+
+	//rs := qr.FindAttEQ("NMPRESTAD", "LABORATORIO MUSIAL LTDA")
+	//rs := qr.FindIndexEQ("30")
+
+	qq := new(query.NotEQ).AddEQ(&query.Map{
+		Key:   "idade",
+		Value: "30",
+	})
+
+	rs := qr.FilterAnd(qq)
+
 	log.Printf("Binomial took %s", time.Since(start))
 	println("Total:", len(rs))
 
-	//	for _, v := range rs {
-	//		println(v)
-	//	}
-
-	if true {
-		return
-	}
+	//for _, v := range rs {
+	//	println(v)
+	//}
 
 	//cria o sistema de arquivos que vai gerenciar os indices
 
