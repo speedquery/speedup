@@ -120,16 +120,26 @@ func (self *Query) GetList() []string {
 		}
 
 		return result
+
 	} else {
 
-		for _, query := range self.andList {
+		result := make([]string, 0)
+
+		for _, query := range self.orList {
+
+			result = self.FilterOr(query)
+
+			if len(result) > 0 {
+				break
+			}
+
 		}
 
-		self.FilterOr()
+		return result
 
 	}
 
-	return nil
+	return make([]string, 0)
 
 }
 

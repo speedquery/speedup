@@ -124,7 +124,7 @@ func main() {
 		Value: "20",
 	})).AddOR(new(query.OR).AddOR(new(query.EQ).AddEQ(&query.Map{
 		Key:   "idade",
-		Value: "10",
+		Value: "30",
 	}))).GetList()
 
 	/**
