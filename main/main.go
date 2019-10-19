@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"speedup/document"
 	fs "speedup/filesystem"
-	"speedup/query"
+	"speedup/query/newquery"
 	"speedup/utils"
 	idx "speedup/wordprocess/indexwriter"
 
@@ -116,21 +116,35 @@ func main() {
 
 	println("iniciou a query")
 
-	start := time.Now()
+	//start := time.Now()
+	//println(start)
+
+	qr := new(newquery.QUERY).Create(fileSystem)
+
+	group := new(newquery.GROUP).AddOperator(new(newquery.EQ).Add(&newquery.Map{
+		Key:   "idade",
+		Value: "30",
+	}))
+
+	rs := qr.Add(new(newquery.AND).AddGroup(group)).GetList()
+
+	println(rs == nil)
+
+	/**
 	qr := new(query.Query).CreateQuery(fileSystem)
 
 	rs := qr.Add(new(query.EQ).AddEQ(&query.Map{
 		Key:   "idade",
-		Value: "20",
+		Value: "300",
 	}).AddEQ(&query.Map{
 		Key:   "nome",
 		Value: "jose luiz",
 	})).AddOR(new(query.OR).AddOR(new(query.EQ).AddEQ(&query.Map{
 		Key:   "idade",
 		Value: "30",
-	}).AddEQ(&query.Map{
-		Key:   "nome",
-		Value: "tatiane rodrigues"}))).GetList()
+	}))).GetList()
+
+	***/
 
 	/**
 		)
@@ -147,7 +161,7 @@ func main() {
 
 		//rs := qr.FilterAnd(qq)
 	**/
-	log.Printf("Binomial took %s", time.Since(start))
+	//	log.Printf("Binomial took %s", time.Since(start))
 	println("Total:", len(rs))
 
 	//for _, v := range rs {

@@ -75,6 +75,9 @@ func (self *Query) GetList() []string {
 	var wg sync.WaitGroup
 	list := make([][]string, 0)
 
+	qtdOperator := 0
+	qtdExist := 0
+
 	for _, query := range self.andList {
 
 		for _, eq := range query.GetList() {
@@ -90,17 +93,21 @@ func (self *Query) GetList() []string {
 				switch query.(type) {
 				case *EQ:
 
+					qtdOperator++
 					result := self.FindIndexEQ(value)
 
 					if len(result) > 0 {
+						qtdExist++
 						list = append(list, result)
 					}
 
 				case *NotEQ:
 
+					qtdOperator++
 					result := self.FindIndexNotEQ(value)
 
 					if len(result) > 0 {
+						qtdExist++
 						list = append(list, result)
 					}
 
@@ -130,6 +137,10 @@ func (self *Query) GetList() []string {
 	}
 
 	if len(list) > 0 {
+
+		if qtdExist != qtdOperator {
+			return orquery()
+		}
 
 		result := list[0]
 		for i := 1; i <= len(list)-1; i++ {
