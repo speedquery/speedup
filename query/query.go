@@ -108,20 +108,11 @@ func (self *Query) GetList() []string {
 
 			}(key, value, func() { wg.Done() })
 		}
-
 	}
 
 	wg.Wait()
 
-	if len(list) > 0 {
-		result := list[0]
-		for i := 1; i <= len(list)-1; i++ {
-			result = difference(result, list[i])
-		}
-
-		return result
-
-	} else {
+	orquery := func() []string {
 
 		result := make([]string, 0)
 
@@ -136,6 +127,24 @@ func (self *Query) GetList() []string {
 		}
 
 		return result
+	}
+
+	if len(list) > 0 {
+
+		result := list[0]
+		for i := 1; i <= len(list)-1; i++ {
+			result = difference(result, list[i])
+		}
+
+		if len(result) > 0 {
+			return result
+		}
+
+		return orquery()
+
+	} else {
+
+		return orquery()
 
 	}
 
@@ -148,6 +157,9 @@ func (self *Query) FilterAnd(query Operators) []string {
 	var wg sync.WaitGroup
 
 	list := make([][]string, 0)
+
+	qtdOperator := 0
+	qtdExist := 0
 
 	for _, eq := range query.GetList() {
 
@@ -163,16 +175,20 @@ func (self *Query) FilterAnd(query Operators) []string {
 			case *EQ:
 
 				result := self.FindIndexEQ(value)
+				qtdOperator++
 
 				if len(result) > 0 {
+					qtdExist++
 					list = append(list, result)
 				}
 
 			case *NotEQ:
 
 				result := self.FindIndexNotEQ(value)
+				qtdOperator++
 
 				if len(result) > 0 {
+					qtdExist++
 					list = append(list, result)
 				}
 
@@ -184,16 +200,20 @@ func (self *Query) FilterAnd(query Operators) []string {
 	wg.Wait()
 
 	if len(list) > 0 {
+
+		if qtdExist != qtdOperator {
+			return make([]string, 0)
+		}
+
 		result := list[0]
 		for i := 1; i <= len(list)-1; i++ {
 
 			result = difference(result, list[i])
 
 		}
-
 		return result
 	} else {
-		return nil
+		return make([]string, 0)
 	}
 
 }

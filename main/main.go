@@ -122,16 +122,21 @@ func main() {
 	rs := qr.Add(new(query.EQ).AddEQ(&query.Map{
 		Key:   "idade",
 		Value: "20",
+	}).AddEQ(&query.Map{
+		Key:   "nome",
+		Value: "jose luiz",
 	})).AddOR(new(query.OR).AddOR(new(query.EQ).AddEQ(&query.Map{
 		Key:   "idade",
 		Value: "30",
-	}))).GetList()
+	}).AddEQ(&query.Map{
+		Key:   "nome",
+		Value: "tatiane rodrigues"}))).GetList()
 
 	/**
 		)
 	***/
 
-	//rs := qr.FindAttEQ("NMPRESTAD", "LABORATORIO MUSIAL LTDA")
+	// rs := qr.FindAttEQ("idade", "300")
 	//rs := qr.FindIndexEQ("30")
 
 	/**

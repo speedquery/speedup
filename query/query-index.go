@@ -14,9 +14,7 @@ import (
 func (self *Query) FindIndexEQ(value string) []string {
 
 	result := make([]string, 0)
-
 	words := strings.Split(value, " ")
-
 	wordGroup := make([]string, 0) //list.New()
 
 	for _, word := range words {
