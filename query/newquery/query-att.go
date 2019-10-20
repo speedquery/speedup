@@ -163,8 +163,6 @@ func (self *QUERY) FindAttGT(key, value string) []string {
 
 	for idWord, _ := range words.GetSet() {
 
-		//println("ID WORD", *idWord, *self.filesystem.GetWordMap().GetValue(idWord))
-
 		referenceValue, err := strconv.ParseFloat(value, 64)
 
 		if err != nil {
@@ -221,6 +219,9 @@ func (self *QUERY) FindAttGT(key, value string) []string {
 	wg.Wait()
 
 	for k, _ := range setDocuments.GetSet() {
+
+		println("Documentos: ", k)
+
 		result = append(result, k)
 	}
 

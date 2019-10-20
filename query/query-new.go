@@ -68,7 +68,6 @@ func (self *QUERY) FilterInGroup(group *GROUP) []string {
 			switch operator.(type) {
 			case *EQ:
 
-				println("EQ")
 				result := self.FindAttEQ(key, value)
 				qtdOperator++
 
@@ -78,7 +77,7 @@ func (self *QUERY) FilterInGroup(group *GROUP) []string {
 				}
 
 			case *NotEQ:
-				println("NOT EQ")
+
 				result := self.FindAttNotEQ(key, value)
 				qtdOperator++
 
@@ -89,21 +88,15 @@ func (self *QUERY) FilterInGroup(group *GROUP) []string {
 
 			case *GT:
 
-				println("GT")
-
 				result := self.FindAttGT(key, value)
 				qtdOperator++
 
 				if len(result) > 0 {
-					println("GT: ", result[0])
 					qtdExist++
 					list = append(list, result)
 				}
 
 			case *GE:
-
-				println("GE")
-
 				result := self.FindAttGE(key, value)
 				qtdOperator++
 
@@ -119,8 +112,6 @@ func (self *QUERY) FilterInGroup(group *GROUP) []string {
 	wg.Wait()
 
 	if len(list) > 0 {
-
-		println("QTD: ", qtdExist, qtdOperator)
 
 		if qtdExist != qtdOperator {
 			return make([]string, 0)
