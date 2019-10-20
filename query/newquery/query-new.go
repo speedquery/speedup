@@ -65,7 +65,7 @@ func (self *GROUP) AddOperator(operator Operator) *GROUP {
 	return self
 }
 
-func (self *GROUP) GetOperators(operator Operator) []Operator {
+func (self *GROUP) GetOperators() []Operator {
 	return self.operators
 }
 
@@ -126,12 +126,20 @@ func (self *QUERY) GetList() []string {
 
 	for _, logicalOperator := range self.logicalOperator {
 
+		result = self.FilterAnd(logicalOperator.GetGroup())
+
+		if len(result) > 0 {
+			break
+		}
+
+		/**
 		switch logicalOperator.(type) {
 		case *AND:
-			result = self.FilterAnd(logicalOperator.GetGroup())
+
 		case *OR:
 			println("OR")
 		}
+		***/
 	}
 
 	return result
@@ -146,7 +154,9 @@ func (self *QUERY) FilterAnd(group *GROUP) []string {
 	qtdOperator := 0
 	qtdExist := 0
 
-	for _, operator := range group.operators {
+	operators := group.GetOperators()
+
+	for _, operator := range operators {
 
 		key := operator.GetMap().Key
 		value := operator.GetMap().Value

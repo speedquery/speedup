@@ -116,19 +116,34 @@ func main() {
 
 	println("iniciou a query")
 
-	//start := time.Now()
+	start := time.Now()
 	//println(start)
 
 	qr := new(newquery.QUERY).Create(fileSystem)
 
-	group := new(newquery.GROUP).AddOperator(new(newquery.EQ).Add(&newquery.Map{
+	Andgroup := new(newquery.GROUP).AddOperator(new(newquery.EQ).Add(&newquery.Map{
+		Key:   "idade",
+		Value: "30",
+	})).AddOperator(new(newquery.EQ).Add(&newquery.Map{
+		Key:   "nome",
+		Value: "tatiane rodrigues",
+	}))
+
+	/**
+	ORgroup := new(newquery.GROUP).AddOperator(new(newquery.EQ).Add(&newquery.Map{
 		Key:   "idade",
 		Value: "30",
 	}))
+	**/
 
-	rs := qr.Add(new(newquery.AND).AddGroup(group)).GetList()
+	rs := qr.Add(new(newquery.AND).AddGroup(Andgroup)).GetList()
+
+	//.Add(new(newquery.OR).AddGroup(ORgroup)).GetList()
 
 	println(rs == nil)
+
+	log.Printf("Binomial took %s", time.Since(start))
+	println("Total:", len(rs))
 
 	/**
 	qr := new(query.Query).CreateQuery(fileSystem)
@@ -161,8 +176,6 @@ func main() {
 
 		//rs := qr.FilterAnd(qq)
 	**/
-	//	log.Printf("Binomial took %s", time.Since(start))
-	println("Total:", len(rs))
 
 	//for _, v := range rs {
 	//	println(v)
