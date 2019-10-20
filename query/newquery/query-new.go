@@ -50,6 +50,36 @@ func (self *NotEQ) GetMap() *Map {
 
 /////////////////////////////
 
+type GT struct {
+	opmap *Map
+}
+
+func (self *GT) Add(opmap *Map) *GT {
+	self.opmap = opmap
+	return self
+}
+
+func (self *GT) GetMap() *Map {
+	return self.opmap
+}
+
+/////////////////////////////
+
+type GE struct {
+	opmap *Map
+}
+
+func (self *GE) Add(opmap *Map) *GE {
+	self.opmap = opmap
+	return self
+}
+
+func (self *GE) GetMap() *Map {
+	return self.opmap
+}
+
+////////////////////////////
+
 type GROUP struct {
 	operators []Operator
 }
@@ -187,6 +217,24 @@ func (self *QUERY) FilterAnd(group *GROUP) []string {
 					list = append(list, result)
 				}
 
+			case *GT:
+
+				result := self.FindAttGT(key, value)
+				qtdOperator++
+
+				if len(result) > 0 {
+					qtdExist++
+					list = append(list, result)
+				}
+
+			case *GE:
+				result := self.FindAttGE(key, value)
+				qtdOperator++
+
+				if len(result) > 0 {
+					qtdExist++
+					list = append(list, result)
+				}
 			}
 
 		}(key, value, func() { wg.Done() })
