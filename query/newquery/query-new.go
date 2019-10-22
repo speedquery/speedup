@@ -57,13 +57,13 @@ func (self *QUERY) FilterInGroup(group *GROUP) []string {
 
 	for _, operator := range operators {
 
-		key := operator.GetMap().Key
-		value := operator.GetMap().Value
-
 		wg.Add(1)
-		go func(key, value string, onClose func()) {
+		go func(operator Operator, onClose func()) {
 
 			defer onClose()
+
+			key := operator.GetMap().Key
+			value := operator.GetMap().Value
 
 			switch operator.(type) {
 			case *EQ:
@@ -113,7 +113,7 @@ func (self *QUERY) FilterInGroup(group *GROUP) []string {
 				}
 			}
 
-		}(key, value, func() { wg.Done() })
+		}(operator, func() { wg.Done() })
 	}
 
 	wg.Wait()

@@ -124,6 +124,9 @@ func main() {
 	Andgroup := new(newquery.GROUP).AddOperator(new(newquery.GT).Add(&newquery.Map{
 		Key:   "idade",
 		Value: "30",
+	})).AddOperator(new(newquery.EQ).Add(&newquery.Map{
+		Key:   "nome",
+		Value: "thiago luiz",
 	}))
 
 	/**
@@ -140,7 +143,7 @@ func main() {
 	println(rs == nil)
 
 	log.Printf("Binomial took %s", time.Since(start))
-	println("Total:", len(rs), rs[0])
+	println("Total:", len(rs))
 
 	/**
 	qr := new(query.Query).CreateQuery(fileSystem)

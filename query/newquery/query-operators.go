@@ -18,6 +18,10 @@ func (self *EQ) GetMap() *Map {
 	return self.opmap
 }
 
+func (self *EQ) GetTypeName() string {
+	return "EQ"
+}
+
 type NotEQ struct {
 	opmap *Map
 }
@@ -29,6 +33,10 @@ func (self *NotEQ) Add(opmap *Map) *NotEQ {
 
 func (self *NotEQ) GetMap() *Map {
 	return self.opmap
+}
+
+func (self *NotEQ) GetTypeName() string {
+	return "NotEQ"
 }
 
 type GT struct {
@@ -44,6 +52,10 @@ func (self *GT) GetMap() *Map {
 	return self.opmap
 }
 
+func (self *GT) GetTypeName() string {
+	return "GT"
+}
+
 type GE struct {
 	opmap *Map
 }
@@ -55,4 +67,8 @@ func (self *GE) Add(opmap *Map) *GE {
 
 func (self *GE) GetMap() *Map {
 	return self.opmap
+}
+
+func (self *GE) GetTypeName() string {
+	return "GE"
 }

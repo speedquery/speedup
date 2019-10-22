@@ -6,4 +6,5 @@ type LogicalOperator interface {
 
 type Operator interface {
 	GetMap() *Map
+	GetTypeName() string
 }
