@@ -117,16 +117,15 @@ func main() {
 	println("iniciou a query")
 
 	start := time.Now()
-	//println(start)
 
 	qr := new(newquery.QUERY).Create(fileSystem)
 
-	Andgroup := new(newquery.GROUP).AddOperator(new(newquery.GT).Add(&newquery.Map{
+	Andgroup := new(newquery.GROUP).AddOperator(new(newquery.GE).Add(&newquery.Map{
 		Key:   "idade",
 		Value: "30",
 	})).AddOperator(new(newquery.EQ).Add(&newquery.Map{
 		Key:   "nome",
-		Value: "thiago luiz",
+		Value: "isabella rodrigues",
 	}))
 
 	/**
@@ -143,7 +142,7 @@ func main() {
 	println(rs == nil)
 
 	log.Printf("Binomial took %s", time.Since(start))
-	println("Total:", len(rs))
+	println("Total:", len(rs), rs[0])
 
 	/**
 	qr := new(query.Query).CreateQuery(fileSystem)

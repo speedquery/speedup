@@ -181,22 +181,22 @@ func (self *QUERY) FindAttGT(key, value string) []string {
 			panic(err)
 		}
 
-		if wordValue <= referenceValue {
+		if wordValue < referenceValue {
 			continue
 		}
 
 		count++
-		if count > 300 {
+		if count > 20 {
 			count = 0
 			wg.Wait()
 		}
 
+		path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedworddoc" + GetBar() + fmt.Sprintf("%v", *idWord) + ".txt"
+
 		wg.Add(1)
-		func(idWord *uint, onClose func()) {
+		func(path string, onClose func()) {
 
 			defer onClose()
-
-			path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedworddoc" + GetBar() + fmt.Sprintf("%v", *idWord) + ".txt"
 
 			file, err := os.Open(path)
 			if err != nil {
@@ -212,7 +212,7 @@ func (self *QUERY) FindAttGT(key, value string) []string {
 				setDocuments.Add(rs)
 			}
 
-		}(idWord, func() { wg.Done() })
+		}(path, func() { wg.Done() })
 
 	}
 
@@ -220,7 +220,7 @@ func (self *QUERY) FindAttGT(key, value string) []string {
 
 	for k, _ := range setDocuments.GetSet() {
 
-		println("Documentos: ", k)
+		// println("Documentos: ", k)
 
 		result = append(result, k)
 	}
@@ -239,9 +239,6 @@ func (self *QUERY) FindAttGE(key, value string) []string {
 	if idAttribute == nil {
 		return result
 	}
-
-	//words := strings.Split(value, " ")
-	//wordGroup := make([]string, 0) //list.New()
 
 	words, _ := self.filesystem.GetAttributeWord().GetValue(idAttribute)
 	setDocuments := new(collection.StrSet).NewSet()
@@ -271,7 +268,7 @@ func (self *QUERY) FindAttGE(key, value string) []string {
 			panic(err)
 		}
 
-		if wordValue >= referenceValue {
+		if wordValue > referenceValue {
 			continue
 		}
 
