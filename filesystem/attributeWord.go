@@ -3,52 +3,79 @@ package filesystem
 import (
 	"encoding/json"
 	"fmt"
+	"speedup/collection"
+	"sync"
 )
 
 type AttributeWord struct {
-	attributeWord map[uint][]uint
+	attributeWord map[*uint]*collection.Set
+	someMapMutex  sync.RWMutex
 }
 
-func (attw *AttributeWord) InitAttributeWord() *AttributeWord {
-	attw.attributeWord = make(map[uint][]uint)
-	return attw
+func (self *AttributeWord) InitAttributeWord() *AttributeWord {
+	self.someMapMutex = sync.RWMutex{}
+	self.attributeWord = make(map[*uint]*collection.Set)
+	return self
 }
 
-func (attw *AttributeWord) GetWordsOfAttribute(idAttribute uint) []uint {
+func (self *AttributeWord) SetNewMap(newMap map[*uint]*collection.Set) {
+	self.attributeWord = newMap
+}
+
+func (self *AttributeWord) GetValue(idAttribute *uint) (*collection.Set, bool) {
+
+	self.someMapMutex.Lock()
+	idGroups, exist := self.attributeWord[idAttribute]
+	self.someMapMutex.Unlock()
+
+	return idGroups, exist
+
+}
+
+/**
+func (attw *AttributeWord) GetWordsOfAttribute(idAttribute *uint) []*uint {
+
 	idwords := attw.attributeWord[idAttribute]
 	return idwords
 }
+**/
 
-func (attw *AttributeWord) AddWordsOfAttribute(idAttribute, idWord uint) []uint {
+func (self *AttributeWord) AddWordsOfAttribute(idAttribute, idWord *uint) *collection.Set {
 
-	idwords, exist := attw.attributeWord[idAttribute]
+	self.someMapMutex.Lock()
 
-	if !exist {
-		idwords = make([]uint, 0)
-		idwords = append(idwords, idWord)
-		attw.attributeWord[idAttribute] = idwords
+	idwords, exist := self.attributeWord[idAttribute]
+
+	if !exist || idwords == nil {
+		idwords = new(collection.Set).NewSet()
+		idwords.Add(idWord)
+		self.attributeWord[idAttribute] = idwords
+	} else {
+		idwords.Add(idWord)
 	}
 
-	existSlice := false
-	for _, localIDword := range idwords {
-		if localIDword == idWord {
-			existSlice = true
-			break
-		}
-	}
-
-	if !existSlice {
-		idwords = append(idwords, idWord)
-		attw.attributeWord[idAttribute] = idwords
-	}
+	self.someMapMutex.Unlock()
 
 	return idwords
 
 }
 
-func (attw *AttributeWord) ToJson() string {
+func (self *AttributeWord) ToJson() string {
 
-	data, err := json.Marshal(attw.attributeWord)
+	temp := make(map[uint][]*uint)
+
+	for key, idwords := range self.attributeWord {
+
+		words := make([]*uint, 0)
+
+		for key, _ := range idwords.GetSet() {
+			words = append(words, key)
+		}
+
+		temp[*key] = words
+	}
+
+	data, err := json.Marshal(temp)
 
 	if err != nil {
 		fmt.Println(err.Error())

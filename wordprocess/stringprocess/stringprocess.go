@@ -3,6 +3,7 @@ package stringprocess
 import (
 	"log"
 	"regexp"
+	"speedup/utils"
 	"strings"
 	"unicode"
 
@@ -29,8 +30,14 @@ func NormalizeText(value string) string {
 
 func ProcessWord(word string) string {
 
+	word = strings.TrimSpace(word)
+
+	if utils.IsNumber(word) {
+		return word
+	}
+
 	newWord := make([]string, 5)
-	tokens := strings.Split(strings.TrimSpace(word), "")
+	tokens := strings.Split(word, "")
 
 	for _, value := range tokens {
 		value = NormalizeText(value)

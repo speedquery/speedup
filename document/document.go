@@ -7,21 +7,30 @@ type Document struct {
 	fields map[string]interface{}
 }
 
-func (doc *Document) CreateDocument(id uint) *Document {
-	doc.id = id
-	doc.fields = make(map[string]interface{})
-	doc.fields["_key"] = id
-	return doc
+func (self *Document) CreateDocument(id uint) *Document {
+	self.id = id
+	self.fields = make(map[string]interface{})
+	return self
 }
 
-func (doc *Document) AddField(name string, value interface{}) *Document {
-	doc.fields[name] = value
-	return doc
+func (self *Document) DeleteMemoryDocument() *Document {
+	self.fields = nil
+	self = nil
+	return self
 }
 
-func (doc *Document) ToJson() string {
+func (self *Document) GetDocument() *Document {
+	return self
+}
 
-	sdata, err := json.Marshal(doc.fields)
+func (self *Document) AddField(name string, value interface{}) *Document {
+	self.fields[name] = value
+	return self
+}
+
+func (self *Document) ToJson() string {
+
+	sdata, err := json.Marshal(self.fields)
 
 	if err != nil {
 		panic("Error ao converter para json")
@@ -30,13 +39,19 @@ func (doc *Document) ToJson() string {
 	return string(sdata)
 }
 
-func (doc *Document) ToMap(jsonString string) map[string]interface{} {
+func (self *Document) ToMap(jsonString string) map[string]interface{} {
 
-	json.Unmarshal([]byte(jsonString), doc.fields)
+	json.Unmarshal([]byte(jsonString), &self.fields)
 
-	return doc.fields
+	delete(self.fields, "_id.$oid")
+
+	return self.fields
 }
 
-func (doc *Document) GetMap() map[string]interface{} {
-	return doc.fields
+func (self *Document) GetMap() map[string]interface{} {
+	return self.fields
+}
+
+func (self *Document) GetID() uint {
+	return self.id
 }

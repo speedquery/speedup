@@ -1,0 +1,9 @@
+dados.txt
+
+*.exe
+*.test
+*.prof
+
+*.o
+*.a
+*.so
