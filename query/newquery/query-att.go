@@ -141,7 +141,29 @@ func (self *QUERY) FindAttNotEQ(key, value string) []string {
 
 }
 
+func (self *QUERY) FindAttGTE(key, value string) []string {
+
+	return self.FindAttGtGe(key, value, "GTE")
+
+}
+
 func (self *QUERY) FindAttGT(key, value string) []string {
+
+	return self.FindAttGtGe(key, value, "GT")
+
+}
+
+func (self *QUERY) FindAttGE(key, value string) []string {
+
+	return self.FindAttGtGe(key, value, "GE")
+}
+
+func (self *QUERY) FindAttGEE(key, value string) []string {
+
+	return self.FindAttGtGe(key, value, "GEE")
+}
+
+func (self *QUERY) FindAttGtGe(key, value, stype string) []string {
 
 	var wg sync.WaitGroup
 
@@ -181,12 +203,28 @@ func (self *QUERY) FindAttGT(key, value string) []string {
 			panic(err)
 		}
 
-		if wordValue < referenceValue {
-			continue
+		switch stype {
+
+		case "GT":
+			if wordValue <= referenceValue {
+				continue
+			}
+		case "GTE":
+			if wordValue < referenceValue {
+				continue
+			}
+		case "GE":
+			if wordValue >= referenceValue {
+				continue
+			}
+		case "GEE":
+			if wordValue > referenceValue {
+				continue
+			}
 		}
 
 		count++
-		if count > 20 {
+		if count > 200 {
 			count = 0
 			wg.Wait()
 		}
@@ -194,7 +232,7 @@ func (self *QUERY) FindAttGT(key, value string) []string {
 		path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedworddoc" + GetBar() + fmt.Sprintf("%v", *idWord) + ".txt"
 
 		wg.Add(1)
-		func(path string, onClose func()) {
+		go func(path string, setDocuments *collection.StrSet, onClose func()) {
 
 			defer onClose()
 
@@ -212,7 +250,7 @@ func (self *QUERY) FindAttGT(key, value string) []string {
 				setDocuments.Add(rs)
 			}
 
-		}(path, func() { wg.Done() })
+		}(path, setDocuments, func() { wg.Done() })
 
 	}
 
@@ -222,92 +260,6 @@ func (self *QUERY) FindAttGT(key, value string) []string {
 
 		// println("Documentos: ", k)
 
-		result = append(result, k)
-	}
-
-	return result
-}
-
-func (self *QUERY) FindAttGE(key, value string) []string {
-
-	var wg sync.WaitGroup
-
-	result := make([]string, 0)
-
-	idAttribute := self.filesystem.GetAttributeMap().GetAttribute(key)
-
-	if idAttribute == nil {
-		return result
-	}
-
-	words, _ := self.filesystem.GetAttributeWord().GetValue(idAttribute)
-	setDocuments := new(collection.StrSet).NewSet()
-
-	count := 0
-
-	for idWord, _ := range words.GetSet() {
-
-		//println("ID WORD", *idWord, *self.filesystem.GetWordMap().GetValue(idWord))
-
-		referenceValue, err := strconv.ParseFloat(value, 64)
-
-		if err != nil {
-			panic(err)
-		}
-
-		word := self.filesystem.GetWordMap().GetValue(idWord)
-
-		if !utils.IsNumber(*word) {
-			println(*word, *idAttribute)
-			continue
-		}
-
-		wordValue, err := strconv.ParseFloat(*word, 64)
-
-		if err != nil {
-			panic(err)
-		}
-
-		if wordValue > referenceValue {
-			continue
-		}
-
-		count++
-		if count > 300 {
-			count = 0
-			wg.Wait()
-		}
-
-		wg.Add(1)
-		go func(idWord *uint, onClose func()) {
-
-			defer onClose()
-
-			path := self.filesystem.Configuration["fileSystemFolder"] + GetBar() + "invertedworddoc" + GetBar() + fmt.Sprintf("%v", *idWord) + ".txt"
-
-			file, err := os.Open(path)
-			if err != nil {
-				panic(err)
-			}
-
-			defer file.Close()
-
-			scanner := bufio.NewScanner(file)
-
-			//println("ID WORD", *idWord)
-			for scanner.Scan() {
-				rs := scanner.Text()
-				//println("Documentos", rs)
-				setDocuments.Add(rs)
-			}
-
-		}(idWord, func() { wg.Done() })
-
-	}
-
-	wg.Wait()
-
-	for k, _ := range setDocuments.GetSet() {
 		result = append(result, k)
 	}
 

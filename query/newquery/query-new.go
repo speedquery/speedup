@@ -95,9 +95,29 @@ func (self *QUERY) FilterInGroup(group *GROUP) []string {
 					list = append(list, result)
 				}
 
+			case *GTE:
+
+				result := self.FindAttGTE(key, value)
+				qtdOperator++
+
+				if len(result) > 0 {
+					qtdExist++
+					list = append(list, result)
+				}
+
 			case *GE:
 
 				result := self.FindAttGE(key, value)
+				qtdOperator++
+
+				if len(result) > 0 {
+					qtdExist++
+					list = append(list, result)
+				}
+
+			case *GEE:
+
+				result := self.FindAttGEE(key, value)
 				qtdOperator++
 
 				if len(result) > 0 {

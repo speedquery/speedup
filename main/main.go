@@ -44,7 +44,7 @@ func TesteIndexacaoTeste() {
 	fileSystem := new(fs.FileSystem).CreateFileSystem("teste", workFolder)
 	IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
-	file, err := os.Open("speedup/teste2.txt")
+	file, err := os.Open("speedup/dados.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -102,16 +102,15 @@ func TesteIndexacaoTeste() {
 }
 
 func main() {
-	/**
+
 	TesteIndexacaoTeste()
 
 	if true {
 		return
 	}
-	**/
 
 	workFolder := utils.InitializeWorkFolder()
-	fileSystem := new(fs.FileSystem).CreateFileSystem("teste", workFolder)
+	fileSystem := new(fs.FileSystem).CreateFileSystem("contas_medicas", workFolder)
 	//IndexWriter := new(idx.IndexWriter).CreateIndex(fileSystem)
 
 	println("iniciou a query")
@@ -120,13 +119,15 @@ func main() {
 
 	qr := new(newquery.QUERY).Create(fileSystem)
 
-	Andgroup := new(newquery.GROUP).AddOperator(new(newquery.GE).Add(&newquery.Map{
-		Key:   "idade",
-		Value: "30",
-	})).AddOperator(new(newquery.EQ).Add(&newquery.Map{
-		Key:   "nome",
-		Value: "isabella rodrigues",
+	Andgroup := new(newquery.GROUP).AddOperator(new(newquery.GEE).Add(&newquery.Map{
+		Key:   "VALORPAGO",
+		Value: "1",
 	}))
+
+	// .AddOperator(new(newquery.EQ).Add(&newquery.Map{
+	// 	Key:   "nome",
+	// 	Value: "isabella rodrigues",
+	// }))
 
 	/**
 	ORgroup := new(newquery.GROUP).AddOperator(new(newquery.EQ).Add(&newquery.Map{
@@ -142,7 +143,11 @@ func main() {
 	println(rs == nil)
 
 	log.Printf("Binomial took %s", time.Since(start))
-	println("Total:", len(rs), rs[0])
+	println("Total:", len(rs))
+
+	// for _, r := range rs {
+	// 	println(r)
+	// }
 
 	/**
 	qr := new(query.Query).CreateQuery(fileSystem)
